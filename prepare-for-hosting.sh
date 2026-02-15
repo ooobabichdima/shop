@@ -25,12 +25,12 @@ php artisan cache:clear 2>/dev/null || true
 php artisan route:clear 2>/dev/null || true
 php artisan view:clear 2>/dev/null || true
 
-echo "📝 Создание .env.production (если нет)..."
-if [ ! -f .env.production ]; then
-    cp .env.example .env.production
-    echo "✓ Файл .env.production создан"
+echo "📝 Создание .env.hosting (если нет)..."
+if [ ! -f .env.hosting ]; then
+    cp .env.example .env.hosting
+    echo "✓ Файл .env.hosting создан"
 else
-    echo "✓ Файл .env.production уже существует"
+    echo "✓ Файл .env.hosting уже существует"
 fi
 
 echo "📂 Создание архива для загрузки..."

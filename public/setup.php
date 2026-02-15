@@ -111,7 +111,7 @@ $basePath = dirname(__DIR__);
                         ]);
 
                         // Создание .env файла
-                        $envContent = file_get_contents($basePath.'/.env.production');
+                        $envContent = file_get_contents($basePath.'/.env.hosting');
                         $envContent = str_replace('your_database_name', $dbName, $envContent);
                         $envContent = str_replace('your_database_user', $dbUser, $envContent);
                         $envContent = str_replace('your_database_password', $dbPass, $envContent);
