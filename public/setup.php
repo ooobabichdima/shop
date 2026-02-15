@@ -176,15 +176,20 @@ MONO_MODE=sandbox
                 <?php else: ?>
                     <div class="info">
                         <strong>📍 Где найти данные?</strong><br>
-                        В cPanel → Базы данных MySQL → Создайте новую базу
+                        В cPanel → Базы данных MySQL → Создайте новую базу<br><br>
+                        <strong>⚠️ Хост БД:</strong> Обычно <code>localhost</code>, но на некоторых хостингах это может быть:<br>
+                        • <code>youraccount.mysql.tools</code><br>
+                        • <code>mysql.yourhosting.com</code><br>
+                        • IP адрес типа <code>127.0.0.1</code><br>
+                        Проверьте в cPanel или документации хостинга!
                     </div>
 
                     <form method="POST">
                         <label>URL вашего сайта</label>
                         <input type="url" name="app_url" value="<?= 'http://'.$_SERVER['HTTP_HOST'] ?>" required>
 
-                        <label>Хост БД</label>
-                        <input type="text" name="db_host" value="localhost" required>
+                        <label>Хост БД (Database Host)</label>
+                        <input type="text" name="db_host" placeholder="localhost или yourname.mysql.tools" value="localhost" required>
 
                         <label>Имя базы данных</label>
                         <input type="text" name="db_name" placeholder="strikeball_db" required>
