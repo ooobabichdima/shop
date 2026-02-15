@@ -103,6 +103,16 @@ $basePath = dirname(__DIR__);
                     $dbPass = $_POST['db_pass'] ?? '';
                     $appUrl = $_POST['app_url'] ?? '';
 
+                    // Проверка наличия шаблона .env
+                    if (!file_exists($basePath.'/.env.hosting') && !file_exists($basePath.'/.env.example')) {
+                        echo '<div class="error">';
+                        echo '❌ Файл <code>.env.hosting</code> не найден!<br><br>';
+                        echo 'Похоже, проект загружен некорректно. Используйте скрипт <code>prepare-for-hosting.sh</code> для подготовки архива.';
+                        echo '</div>';
+                        echo '<a href="?step=2"><button class="btn">← Назад</button></a>';
+                        die();
+                    }
+
                     // Проверка подключения к БД
                     try {
                         $dsn = "mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4";
@@ -111,7 +121,11 @@ $basePath = dirname(__DIR__);
                         ]);
 
                         // Создание .env файла
-                        $envContent = file_get_contents($basePath.'/.env.hosting');
+                        $envTemplate = $basePath.'/.env.hosting';
+                        if (!file_exists($envTemplate)) {
+                            $envTemplate = $basePath.'/.env.example';
+                        }
+                        $envContent = file_get_contents($envTemplate);
                         $envContent = str_replace('your_database_name', $dbName, $envContent);
                         $envContent = str_replace('your_database_user', $dbUser, $envContent);
                         $envContent = str_replace('your_database_password', $dbPass, $envContent);
@@ -162,6 +176,24 @@ $basePath = dirname(__DIR__);
                 <?php
                 if (!file_exists($basePath.'/.env')) {
                     die('<div class="error">Файл .env не найден. Вернитесь на шаг 2.</div>');
+                }
+
+                // Проверка наличия Composer зависимостей
+                if (!file_exists($basePath.'/vendor/autoload.php')) {
+                    echo '<div class="error">';
+                    echo '<h3>❌ Отсутствуют Composer зависимости!</h3>';
+                    echo '<p>Файлы проекта загружены некорректно.</p>';
+                    echo '<p><strong>Решение:</strong></p>';
+                    echo '<ol style="margin-left: 20px;">';
+                    echo '<li>На локальной машине выполните: <code>bash prepare-for-hosting.sh</code></li>';
+                    echo '<li>Это создаст архив <code>shop-hosting-ready.zip</code></li>';
+                    echo '<li>Загрузите этот архив на хостинг</li>';
+                    echo '<li>Распакуйте и повторите установку</li>';
+                    echo '</ol>';
+                    echo '<p><strong>Альтернатива:</strong> Если у вас есть SSH доступ:</p>';
+                    echo '<pre style="background:#f5f5f5;padding:10px;">cd ' . dirname($basePath) . '<br>composer install --no-dev --optimize-autoloader</pre>';
+                    echo '</div>';
+                    die();
                 }
 
                 // Загрузка Laravel для выполнения команд

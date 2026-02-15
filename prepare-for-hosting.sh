@@ -55,6 +55,12 @@ rsync -a --exclude='node_modules' \
          --exclude='storage/framework/views/*' \
          ./ "../$TEMP_DIR/"
 
+# Убедимся что .env.hosting скопирован
+if [ -f .env.hosting ]; then
+    cp .env.hosting "../$TEMP_DIR/.env.hosting"
+    echo "✓ Файл .env.hosting скопирован"
+fi
+
 # Создаем нужные директории
 mkdir -p "../$TEMP_DIR/storage/logs"
 mkdir -p "../$TEMP_DIR/storage/framework/cache"
