@@ -1,23 +1,19 @@
 <?php
 /**
  * Автоматическая установка Strikeball Shop
- *
- * Использование:
- * 1. Загрузите все файлы на хостинг
- * 2. Откройте http://ваш-домен.com/setup.php в браузере
- * 3. Следуйте инструкциям
+ * Просто загрузите файлы на хостинг и откройте этот файл
  */
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Проверка уже установленного приложения
-if (file_exists(__DIR__.'/../.env') && filesize(__DIR__.'/../.env') > 100) {
-    die('⚠️ Приложение уже установлено! Удалите файл .env для переустановки.');
-}
-
 $step = $_GET['step'] ?? 1;
 $basePath = dirname(__DIR__);
+
+// Проверка уже установленного
+if (file_exists($basePath.'/.env') && filesize($basePath.'/.env') > 100 && $step == 1) {
+    die('⚠️ Приложение уже установлено! <a href="/">Открыть магазин</a> | <a href="/admin">Админка</a>');
+}
 
 ?>
 <!DOCTYPE html>
@@ -28,70 +24,75 @@ $basePath = dirname(__DIR__);
     <title>Установка Strikeball Shop</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        body { font-family: system-ui, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 700px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
         .header h1 { font-size: 28px; margin-bottom: 10px; }
-        .header p { opacity: 0.9; }
         .content { padding: 30px; }
         .step { background: #f0f0f0; padding: 8px 16px; border-radius: 20px; display: inline-block; margin-bottom: 20px; font-weight: 600; }
-        input[type="text"], input[type="password"], input[type="url"] { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; margin-bottom: 15px; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; margin-bottom: 15px; }
         input:focus { outline: none; border-color: #667eea; }
         label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
-        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; text-decoration: none; display: inline-block; text-align: center; }
         .btn:hover { opacity: 0.9; }
         .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .checklist { list-style: none; }
-        .checklist li { padding: 10px 0; border-bottom: 1px solid #eee; }
-        .checklist li:before { content: "✓"; color: #28a745; font-weight: bold; margin-right: 10px; }
-        .checklist li.error:before { content: "✗"; color: #dc3545; }
         .code { background: #f5f5f5; padding: 10px; border-radius: 6px; font-family: monospace; margin: 10px 0; overflow-x: auto; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 8px; overflow-x: auto; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🛒 Strikeball Shop</h1>
-            <p>Автоматическая установка</p>
+            <p>Простая установка за 2 минуты</p>
         </div>
         <div class="content">
             <?php if ($step == 1): ?>
-                <!-- Шаг 1: Проверка системы -->
+                <!-- Шаг 1: Проверка -->
                 <div class="step">Шаг 1 из 3</div>
                 <h2 style="margin-bottom: 20px;">Проверка системы</h2>
 
                 <?php
                 $checks = [
                     'PHP >= 8.2' => version_compare(PHP_VERSION, '8.2.0', '>='),
-                    'PDO Extension' => extension_loaded('pdo'),
                     'PDO MySQL' => extension_loaded('pdo_mysql'),
-                    'Mbstring Extension' => extension_loaded('mbstring'),
-                    'XML Extension' => extension_loaded('xml'),
-                    'BCMath Extension' => extension_loaded('bcmath'),
-                    'Writable storage/' => is_writable($basePath.'/storage'),
-                    'Writable bootstrap/cache/' => is_writable($basePath.'/bootstrap/cache'),
+                    'Mbstring' => extension_loaded('mbstring'),
+                    'Composer зависимости' => file_exists($basePath.'/vendor/autoload.php'),
                 ];
 
                 $allPassed = !in_array(false, $checks, true);
                 ?>
 
-                <ul class="checklist">
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                     <?php foreach ($checks as $name => $passed): ?>
-                        <li class="<?= $passed ? '' : 'error' ?>"><?= $name ?></li>
+                        <div style="padding: 8px 0; border-bottom: 1px solid #eee;">
+                            <?= $passed ? '✅' : '❌' ?> <?= $name ?>
+                        </div>
                     <?php endforeach; ?>
-                </ul>
+                </div>
+
+                <?php if (!$checks['Composer зависимости']): ?>
+                    <div class="warning">
+                        <h3>⚠️ Отсутствуют зависимости Composer</h3>
+                        <p style="margin: 10px 0;">Выполните на хостинге (если есть SSH):</p>
+                        <pre>cd <?= $basePath ?>
+composer install --no-dev --optimize-autoloader</pre>
+                        <p style="margin-top: 15px;">Или загрузите папку <code>vendor/</code> из GitHub.</p>
+                    </div>
+                <?php endif; ?>
 
                 <?php if ($allPassed): ?>
-                    <div class="success">✓ Все проверки пройдены!</div>
-                    <a href="?step=2"><button class="btn">Продолжить →</button></a>
+                    <div class="success">✅ Всё готово к установке!</div>
+                    <a href="?step=2" class="btn">Продолжить →</a>
                 <?php else: ?>
-                    <div class="error">⚠️ Некоторые требования не выполнены. Обратитесь к хостинг-провайдеру.</div>
+                    <div class="error">Исправьте ошибки выше и перезагрузите страницу.</div>
                 <?php endif; ?>
 
             <?php elseif ($step == 2): ?>
-                <!-- Шаг 2: Настройка БД -->
+                <!-- Шаг 2: База данных -->
                 <div class="step">Шаг 2 из 3</div>
                 <h2 style="margin-bottom: 20px;">Настройка базы данных</h2>
 
@@ -103,56 +104,56 @@ $basePath = dirname(__DIR__);
                     $dbPass = $_POST['db_pass'] ?? '';
                     $appUrl = $_POST['app_url'] ?? '';
 
-                    // Проверка наличия шаблона .env
-                    if (!file_exists($basePath.'/.env.hosting') && !file_exists($basePath.'/.env.example')) {
-                        echo '<div class="error">';
-                        echo '❌ Файл <code>.env.hosting</code> не найден!<br><br>';
-                        echo 'Похоже, проект загружен некорректно. Используйте скрипт <code>prepare-for-hosting.sh</code> для подготовки архива.';
-                        echo '</div>';
-                        echo '<a href="?step=2"><button class="btn">← Назад</button></a>';
-                        die();
-                    }
-
-                    // Проверка подключения к БД
+                    // Проверка БД
                     try {
-                        $dsn = "mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4";
-                        $pdo = new PDO($dsn, $dbUser, $dbPass, [
+                        $pdo = new PDO("mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4", $dbUser, $dbPass, [
                             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
                         ]);
 
-                        // Создание .env файла
-                        $envTemplate = $basePath.'/.env.hosting';
-                        if (!file_exists($envTemplate)) {
-                            $envTemplate = $basePath.'/.env.example';
-                        }
-                        $envContent = file_get_contents($envTemplate);
-                        $envContent = str_replace('your_database_name', $dbName, $envContent);
-                        $envContent = str_replace('your_database_user', $dbUser, $envContent);
-                        $envContent = str_replace('your_database_password', $dbPass, $envContent);
-                        $envContent = str_replace('DB_HOST=localhost', "DB_HOST=$dbHost", $envContent);
-                        $envContent = str_replace('http://yourdomain.com', $appUrl, $envContent);
+                        // Создание .env с нуля
+                        $envContent = "APP_NAME=\"Strikeball Shop\"
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_TIMEZONE=Europe/Kyiv
+APP_URL=$appUrl
+
+DB_CONNECTION=mysql
+DB_HOST=$dbHost
+DB_PORT=3306
+DB_DATABASE=$dbName
+DB_USERNAME=$dbUser
+DB_PASSWORD=$dbPass
+
+SESSION_DRIVER=file
+CACHE_STORE=file
+QUEUE_CONNECTION=database
+LOG_CHANNEL=stack
+
+NOVAPOSHTA_MODE=sandbox
+MONO_MODE=sandbox
+";
 
                         file_put_contents($basePath.'/.env', $envContent);
 
-                        echo '<div class="success">✓ База данных подключена успешно!</div>';
-                        echo '<a href="?step=3"><button class="btn">Установить приложение →</button></a>';
+                        echo '<div class="success">✅ База данных подключена!</div>';
+                        echo '<a href="?step=3" class="btn">Установить приложение →</a>';
                     } catch (PDOException $e) {
-                        echo '<div class="error">❌ Ошибка подключения к БД: ' . htmlspecialchars($e->getMessage()) . '</div>';
-                        echo '<a href="?step=2"><button class="btn">← Попробовать снова</button></a>';
+                        echo '<div class="error">❌ Ошибка: ' . htmlspecialchars($e->getMessage()) . '</div>';
+                        echo '<a href="?step=2" class="btn">← Попробовать снова</a>';
                     }
                     ?>
                 <?php else: ?>
                     <div class="info">
-                        <strong>Где найти данные БД?</strong><br>
-                        В панели хостинга (cPanel) → Базы данных MySQL<br>
-                        Создайте новую базу, если её нет.
+                        <strong>📍 Где найти данные?</strong><br>
+                        В cPanel → Базы данных MySQL → Создайте новую базу
                     </div>
 
                     <form method="POST">
-                        <label>URL сайта</label>
+                        <label>URL вашего сайта</label>
                         <input type="url" name="app_url" value="<?= 'http://'.$_SERVER['HTTP_HOST'] ?>" required>
 
-                        <label>Хост БД (обычно localhost)</label>
+                        <label>Хост БД</label>
                         <input type="text" name="db_host" value="localhost" required>
 
                         <label>Имя базы данных</label>
@@ -162,88 +163,74 @@ $basePath = dirname(__DIR__);
                         <input type="text" name="db_user" placeholder="db_user" required>
 
                         <label>Пароль БД</label>
-                        <input type="password" name="db_pass" placeholder="••••••••" required>
+                        <input type="password" name="db_pass" required>
 
-                        <button type="submit" class="btn">Проверить и продолжить →</button>
+                        <button type="submit" class="btn">Подключить →</button>
                     </form>
                 <?php endif; ?>
 
             <?php elseif ($step == 3): ?>
                 <!-- Шаг 3: Установка -->
                 <div class="step">Шаг 3 из 3</div>
-                <h2 style="margin-bottom: 20px;">Установка приложения</h2>
+                <h2 style="margin-bottom: 20px;">Установка</h2>
 
                 <?php
                 if (!file_exists($basePath.'/.env')) {
                     die('<div class="error">Файл .env не найден. Вернитесь на шаг 2.</div>');
                 }
 
-                // Проверка наличия Composer зависимостей
                 if (!file_exists($basePath.'/vendor/autoload.php')) {
-                    echo '<div class="error">';
-                    echo '<h3>❌ Отсутствуют Composer зависимости!</h3>';
-                    echo '<p>Файлы проекта загружены некорректно.</p>';
-                    echo '<p><strong>Решение:</strong></p>';
-                    echo '<ol style="margin-left: 20px;">';
-                    echo '<li>На локальной машине выполните: <code>bash prepare-for-hosting.sh</code></li>';
-                    echo '<li>Это создаст архив <code>shop-hosting-ready.zip</code></li>';
-                    echo '<li>Загрузите этот архив на хостинг</li>';
-                    echo '<li>Распакуйте и повторите установку</li>';
-                    echo '</ol>';
-                    echo '<p><strong>Альтернатива:</strong> Если у вас есть SSH доступ:</p>';
-                    echo '<pre style="background:#f5f5f5;padding:10px;">cd ' . dirname($basePath) . '<br>composer install --no-dev --optimize-autoloader</pre>';
-                    echo '</div>';
-                    die();
+                    die('<div class="error">Отсутствуют зависимости Composer. Вернитесь на шаг 1.</div>');
                 }
 
-                // Загрузка Laravel для выполнения команд
-                require $basePath.'/vendor/autoload.php';
+                try {
+                    require $basePath.'/vendor/autoload.php';
+                    $app = require_once $basePath.'/bootstrap/app.php';
+                    $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 
-                $app = require_once $basePath.'/bootstrap/app.php';
-                $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+                    echo '<div class="info">⏳ Установка...</div>';
 
-                echo '<div class="info">Выполняется установка...</div>';
+                    // Генерация ключа
+                    ob_start();
+                    $kernel->call('key:generate', ['--force' => true]);
+                    ob_get_clean();
+                    echo '<div class="code">✅ Ключ сгенерирован</div>';
 
-                // Генерация ключа
-                ob_start();
-                $kernel->call('key:generate', ['--force' => true]);
-                $output = ob_get_clean();
-                echo '<div class="code">✓ APP_KEY сгенерирован</div>';
+                    // Миграции
+                    ob_start();
+                    $kernel->call('migrate', ['--force' => true, '--seed' => true]);
+                    ob_get_clean();
+                    echo '<div class="code">✅ База данных создана (50+ товаров)</div>';
 
-                // Миграции
-                ob_start();
-                $kernel->call('migrate', ['--force' => true, '--seed' => true]);
-                $output = ob_get_clean();
-                echo '<div class="code">✓ База данных создана и заполнена</div>';
+                    // Кеш
+                    ob_start();
+                    $kernel->call('config:cache');
+                    $kernel->call('route:cache');
+                    $kernel->call('view:cache');
+                    ob_get_clean();
+                    echo '<div class="code">✅ Кеш создан</div>';
 
-                // Кеширование
-                ob_start();
-                $kernel->call('config:cache');
-                $kernel->call('route:cache');
-                $kernel->call('view:cache');
-                ob_get_clean();
-                echo '<div class="code">✓ Кеш создан</div>';
+                    echo '<div class="success">';
+                    echo '<h2 style="margin-bottom: 15px;">🎉 Готово!</h2>';
+                    echo '<p><strong>Админка:</strong> <a href="/admin">'.$_SERVER['HTTP_HOST'].'/admin</a></p>';
+                    echo '<p><strong>Email:</strong> admin@example.com</p>';
+                    echo '<p><strong>Пароль:</strong> password</p>';
+                    echo '<p style="margin-top: 15px; color: #856404;">⚠️ Смените пароль после входа!</p>';
+                    echo '</div>';
 
-                echo '<div class="success">';
-                echo '<h3>🎉 Установка завершена!</h3><br>';
-                echo '<strong>Доступ к админке:</strong><br>';
-                echo 'URL: <a href="/admin" target="_blank">'.($_SERVER['REQUEST_SCHEME'] ?? 'http').'://'.$_SERVER['HTTP_HOST'].'/admin</a><br>';
-                echo 'Email: <code>admin@example.com</code><br>';
-                echo 'Password: <code>password</code><br><br>';
-                echo '<strong>⚠️ ВАЖНО: Смените пароль после входа!</strong>';
-                echo '</div>';
+                    echo '<a href="/" class="btn" style="margin-bottom: 10px;">Открыть магазин</a>';
+                    echo '<a href="/admin" class="btn">Войти в админку</a>';
 
-                echo '<div style="margin-top: 20px;">';
-                echo '<a href="/"><button class="btn">Открыть магазин →</button></a>';
-                echo '<a href="/admin"><button class="btn" style="margin-top: 10px;">Войти в админку →</button></a>';
-                echo '</div>';
+                    echo '<div class="warning" style="margin-top: 20px;">';
+                    echo '<strong>После установки:</strong><br>';
+                    echo '1. Удалите файл <code>public/setup.php</code><br>';
+                    echo '2. Смените пароль админа';
+                    echo '</div>';
 
-                echo '<div class="info" style="margin-top: 20px;">';
-                echo '<strong>После установки:</strong><br>';
-                echo '1. Удалите файл <code>public/setup.php</code> для безопасности<br>';
-                echo '2. Получите реальные API ключи (Nova Poshta, Monobank)<br>';
-                echo '3. Загрузите изображения товаров';
-                echo '</div>';
+                } catch (Exception $e) {
+                    echo '<div class="error">❌ Ошибка: ' . htmlspecialchars($e->getMessage()) . '</div>';
+                    echo '<div class="code">' . htmlspecialchars($e->getTraceAsString()) . '</div>';
+                }
                 ?>
 
             <?php endif; ?>
