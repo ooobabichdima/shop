@@ -56,11 +56,21 @@ if (file_exists($basePath.'/.env') && filesize($basePath.'/.env') > 100 && $step
                 <h2 style="margin-bottom: 20px;">Проверка системы</h2>
 
                 <?php
+                // Проверка Laravel зависимостей
+                $vendorExists = file_exists($basePath.'/vendor/autoload.php');
+                $laravelInstalled = false;
+
+                if ($vendorExists) {
+                    require_once $basePath.'/vendor/autoload.php';
+                    $laravelInstalled = class_exists('Illuminate\Foundation\Application');
+                }
+
                 $checks = [
                     'PHP >= 8.2' => version_compare(PHP_VERSION, '8.2.0', '>='),
                     'PDO MySQL' => extension_loaded('pdo_mysql'),
                     'Mbstring' => extension_loaded('mbstring'),
-                    'Composer зависимости' => file_exists($basePath.'/vendor/autoload.php'),
+                    'Папка vendor/' => $vendorExists,
+                    'Laravel установлен' => $laravelInstalled,
                 ];
 
                 $allPassed = !in_array(false, $checks, true);
@@ -74,13 +84,33 @@ if (file_exists($basePath.'/.env') && filesize($basePath.'/.env') > 100 && $step
                     <?php endforeach; ?>
                 </div>
 
-                <?php if (!$checks['Composer зависимости']): ?>
+                <?php if (!$vendorExists || !$laravelInstalled): ?>
                     <div class="warning">
-                        <h3>⚠️ Отсутствуют зависимости Composer</h3>
-                        <p style="margin: 10px 0;">Выполните на хостинге (если есть SSH):</p>
+                        <h3>⚠️ <?= !$vendorExists ? 'Отсутствует папка vendor/' : 'Laravel зависимости неполные' ?></h3>
+
+                        <p style="margin: 15px 0;"><strong>Решение 1: Через SSH</strong></p>
                         <pre>cd <?= $basePath ?>
+
+# Удалите неполный vendor (если есть)
+rm -rf vendor/
+
+# Установите заново
 composer install --no-dev --optimize-autoloader</pre>
-                        <p style="margin-top: 15px;">Или загрузите папку <code>vendor/</code> из GitHub.</p>
+
+                        <p style="margin: 15px 0;"><strong>Решение 2: Загрузить готовый vendor/</strong></p>
+                        <p>1. На локальной машине запустите:</p>
+                        <pre>cd /home/user/shop
+composer install --no-dev --optimize-autoloader
+zip -r vendor.zip vendor/</pre>
+
+                        <p>2. Загрузите <code>vendor.zip</code> на хостинг</p>
+                        <p>3. Распакуйте в <code><?= $basePath ?>/vendor/</code></p>
+                        <p>4. Перезагрузите эту страницу</p>
+
+                        <p style="margin: 15px 0;"><strong>Решение 3: Готовый архив</strong></p>
+                        <p>Запустите локально скрипт подготовки:</p>
+                        <pre>bash prepare-for-hosting.sh</pre>
+                        <p>И загрузите созданный архив <code>shop-hosting-ready.zip</code></p>
                     </div>
                 <?php endif; ?>
 
@@ -176,15 +206,21 @@ MONO_MODE=sandbox
 
                 <?php
                 if (!file_exists($basePath.'/.env')) {
-                    die('<div class="error">Файл .env не найден. Вернитесь на шаг 2.</div>');
+                    die('<div class="error">Файл .env не найден. <a href="?step=2">Вернитесь на шаг 2</a>.</div>');
                 }
 
                 if (!file_exists($basePath.'/vendor/autoload.php')) {
-                    die('<div class="error">Отсутствуют зависимости Composer. Вернитесь на шаг 1.</div>');
+                    die('<div class="error">Отсутствуют зависимости Composer. <a href="?step=1">Вернитесь на шаг 1</a>.</div>');
                 }
 
                 try {
                     require $basePath.'/vendor/autoload.php';
+
+                    // Проверка что Laravel установлен
+                    if (!class_exists('Illuminate\Foundation\Application')) {
+                        throw new Exception('Laravel зависимости неполные. Папка vendor/ повреждена или установлена не полностью. Удалите vendor/ и установите заново через: composer install --no-dev --optimize-autoloader');
+                    }
+
                     $app = require_once $basePath.'/bootstrap/app.php';
                     $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 
