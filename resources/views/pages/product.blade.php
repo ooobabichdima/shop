@@ -65,6 +65,69 @@
         color:rgba(255,255,255,.85); font-size:14px;
     }
     .spec span{color:var(--muted)}
+
+    /* section titles */
+    .section-title{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin:18px 0 10px}
+    .section-title h2{margin:0; font-size:var(--h2)}
+    .section-title p{margin:0; color:var(--muted); font-size:14px}
+
+    /* tuning kits */
+    .kits{display:grid; grid-template-columns: 1fr; gap:12px; margin-bottom:18px}
+    .kit{
+        padding:14px; border-radius:18px; border:1px solid rgba(255,255,255,.12);
+        background:rgba(255,255,255,.05); display:grid; gap:10px;
+    }
+    .kit:hover{border-color:rgba(255,255,255,.22); background:rgba(255,255,255,.06)}
+    .kit-top{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-start}
+    .kit-name{font-weight:950; font-size:15px}
+    .kit-tag{
+        display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px;
+        border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
+        color:rgba(255,255,255,.78); font-size:12px; font-weight:950;
+    }
+    .kit-list{margin:0; padding-left:18px; color:rgba(255,255,255,.82); font-size:14px}
+    .kit-list li{margin:6px 0}
+    .kit-foot{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center}
+    .kit-price{font-weight:950; font-size:18px}
+    .kit-note{color:rgba(255,255,255,.55); font-size:12.5px; max-width:70ch}
+    .radio{
+        display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 12px;
+        border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.14);
+    }
+    .radio:hover{border-color:rgba(255,255,255,.18); background:rgba(255,255,255,.04)}
+    .radio input{width:16px; height:16px; accent-color: var(--accent)}
+
+    /* bundle */
+    .bundle{
+        border-radius:var(--radius2); border:1px solid rgba(255,255,255,.12);
+        background:rgba(255,255,255,.04); overflow:hidden; margin-bottom:18px;
+    }
+    .bundle-head{
+        padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.10);
+        background:rgba(0,0,0,.14); display:flex; justify-content:space-between;
+        gap:12px; flex-wrap:wrap; align-items:flex-end;
+    }
+    .bundle-head b{font-size:16px}
+    .bundle-body{padding:14px; display:grid; gap:12px}
+    .bundle-items{display:grid; grid-template-columns: repeat(2,1fr); gap:12px}
+    .addon{
+        padding:12px; border-radius:16px; border:1px solid rgba(255,255,255,.12);
+        background:rgba(255,255,255,.05); display:grid; gap:10px;
+    }
+    .addon:hover{border-color:rgba(255,255,255,.22); background:rgba(255,255,255,.06)}
+    .addon-top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
+    .addon-title{font-weight:950; font-size:14px}
+    .addon-meta{color:rgba(255,255,255,.60); font-size:12.5px}
+    .addon-check{display:flex; align-items:center; gap:10px}
+    .addon-check input{width:16px; height:16px; accent-color: var(--accent)}
+    .addon-price{font-weight:950}
+    .bundle-total{
+        padding:12px 14px; border-radius:18px; border:1px solid rgba(255,255,255,.12);
+        background:rgba(0,0,0,.18); display:flex; justify-content:space-between;
+        gap:12px; flex-wrap:wrap; align-items:center;
+    }
+    .bundle-total .sum{font-weight:950; font-size:18px}
+
     .related{display:grid; grid-template-columns: repeat(4,1fr); gap:16px; padding:24px 0}
     .p{
         border-radius:var(--radius); border:1px solid rgba(255,255,255,.12);
@@ -90,6 +153,7 @@
         .thumbs{grid-template-columns: repeat(3, 1fr)}
         .specs{grid-template-columns: 1fr}
         .related{grid-template-columns: 1fr}
+        .bundle-items{grid-template-columns:1fr}
     }
 </style>
 @endpush
@@ -226,15 +290,104 @@
     </div>
 </section>
 
-<!-- Related Products -->
-@if($product->recommended && $product->recommended->count() > 0)
+<!-- Tuning Kits -->
+@if($product->tuning_kits && count($product->tuning_kits) > 0)
 <div class="section-title">
-    <h2>Рекомендовані товари</h2>
-    <p class="muted">Товари, які часто купують разом</p>
+    <div>
+        <h2>Пакети тюнінгу</h2>
+        <p>Готові комплекти апгрейду під ваш стиль гри</p>
+    </div>
+    <a class="btn small" href="#tabs">Дивитись характеристики</a>
+</div>
+
+<div class="kits" aria-label="Пакети тюнінгу">
+    @foreach($product->tuning_kits as $index => $kit)
+    <div class="kit">
+        <div class="kit-top">
+            <label class="radio" style="flex:1; min-width:260px;">
+                <input type="radio" name="tuningKit" value="{{ $index }}" {{ $index === 0 ? 'checked' : '' }} />
+                <div>
+                    <div class="kit-name">{{ $kit['name'] ?? 'Пакет тюнінгу #' . ($index + 1) }}</div>
+                    <div class="muted2" style="font-size:13px;">{{ $kit['description'] ?? '' }}</div>
+                </div>
+            </label>
+            @if(isset($kit['tag']))
+            <span class="kit-tag">{{ $kit['tag'] }}</span>
+            @endif
+        </div>
+        @if(isset($kit['items']) && is_array($kit['items']))
+        <ul class="kit-list">
+            @foreach($kit['items'] as $item)
+            <li>{{ $item }}</li>
+            @endforeach
+        </ul>
+        @endif
+        <div class="kit-foot">
+            <div>
+                <div class="kit-price" data-kit-price="{{ $kit['price'] ?? 0 }}">{{ number_format($kit['price'] ?? 0, 0) }} грн</div>
+                @if(isset($kit['note']))
+                <div class="kit-note">{{ $kit['note'] }}</div>
+                @endif
+            </div>
+            <button class="btn small primary" type="button" data-add-kit="{{ $index }}">Додати пакет</button>
+        </div>
+    </div>
+    @endforeach
+</div>
+@endif
+
+<!-- Bundle / Recommended Items -->
+@if($product->recommended && $product->recommended->count() > 0)
+<div class="bundle" style="margin-top:16px;" aria-label="Рекомендовані товари">
+    <div class="bundle-head">
+        <div>
+            <b>З цим товаром купують</b>
+            <div class="muted" style="font-size:13px; margin-top:4px;">Оберіть товари — сума розраховується автоматично</div>
+        </div>
+        <button class="btn small" type="button" id="selectRecommended">Обрати рекомендоване</button>
+    </div>
+
+    <div class="bundle-body">
+        <div class="bundle-items">
+            @foreach($product->recommended->take(4) as $rec)
+            <div class="addon">
+                <div class="addon-top">
+                    <div>
+                        <div class="addon-title">{{ $rec->name }}</div>
+                        <div class="addon-meta">{{ $rec->brand ? $rec->brand->name : 'SKU: ' . $rec->sku }}</div>
+                    </div>
+                    <div class="addon-check">
+                        <input type="checkbox" class="addonBox" data-addon-id="{{ $rec->id }}" data-addon-price="{{ $rec->price }}" />
+                        <span class="addon-price">{{ number_format($rec->price, 0) }} грн</span>
+                    </div>
+                </div>
+                @if($rec->description)
+                <div class="muted2" style="font-size:13px;">{{ Str::limit($rec->description, 80) }}</div>
+                @endif
+            </div>
+            @endforeach
+        </div>
+
+        <div class="bundle-total">
+            <div>
+                <div style="font-size:14px; color:var(--muted); margin-bottom:4px;">Разом:</div>
+                <div class="sum" id="bundleSum">{{ number_format($product->price, 0) }} грн</div>
+            </div>
+            <button class="btn primary" type="button" id="addBundleToCart">Додати обране в кошик</button>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- Related Products -->
+@if($product->recommended && $product->recommended->count() > 4)
+<div class="section-title">
+    <h2>Схожі товари</h2>
+    <p class="muted">Інші товари, які можуть вас зацікавити</p>
 </div>
 
 <div class="related">
-    @foreach($product->recommended as $rec)
+    @foreach($product->recommended->skip(4)->take(4) as $rec)
     <a href="{{ route('product.show', $rec->slug) }}" class="p" style="text-decoration:none;color:inherit;">
         <div class="img">
             <span>📦</span>
@@ -286,6 +439,65 @@
         thumb.addEventListener('click', () => {
             document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
             thumb.classList.add('active');
+        });
+    });
+
+    // Bundle functionality
+    const basePrice = {{ $product->price }};
+    const addonBoxes = document.querySelectorAll('.addonBox');
+    const bundleSumEl = document.getElementById('bundleSum');
+    const selectRecommendedBtn = document.getElementById('selectRecommended');
+    const addBundleBtn = document.getElementById('addBundleToCart');
+
+    function updateBundleSum() {
+        let total = basePrice;
+        addonBoxes.forEach(box => {
+            if (box.checked) {
+                total += parseInt(box.dataset.addonPrice || 0);
+            }
+        });
+        if (bundleSumEl) {
+            bundleSumEl.textContent = total.toLocaleString('uk-UA') + ' грн';
+        }
+    }
+
+    addonBoxes.forEach(box => {
+        box.addEventListener('change', updateBundleSum);
+    });
+
+    selectRecommendedBtn?.addEventListener('click', () => {
+        const allChecked = Array.from(addonBoxes).every(box => box.checked);
+        addonBoxes.forEach(box => box.checked = !allChecked);
+        updateBundleSum();
+    });
+
+    addBundleBtn?.addEventListener('click', () => {
+        const selectedIds = Array.from(addonBoxes)
+            .filter(box => box.checked)
+            .map(box => box.dataset.addonId);
+
+        if (selectedIds.length === 0) {
+            alert('Оберіть хоча б один товар для додавання в кошик');
+            return;
+        }
+
+        alert(`Додано основний товар та ${selectedIds.length} додаткових товарів до кошика`);
+        // TODO: Implement actual cart addition
+    });
+
+    // Tuning kits functionality
+    const addKitBtns = document.querySelectorAll('[data-add-kit]');
+    const kitRadios = Array.from(document.querySelectorAll('input[name="tuningKit"]'));
+
+    addKitBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const kitIndex = btn.dataset.addKit;
+            const selectedKit = kitRadios.find(r => r.value === kitIndex);
+            const kitPriceEl = btn.closest('.kit').querySelector('[data-kit-price]');
+            const kitPrice = kitPriceEl?.dataset.kitPrice || 0;
+
+            alert(`Пакет тюнінгу додано: ${kitPrice} грн`);
+            // TODO: Implement actual kit addition to cart
         });
     });
 </script>

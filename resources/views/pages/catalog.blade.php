@@ -78,7 +78,6 @@
     .price{font-weight:950}
     .strike{color:rgba(255,255,255,.45); text-decoration:line-through; font-weight:700; margin-left:8px}
     .star{color:rgba(255,204,0,.9)}
-    .pagination{display:flex; gap:8px; justify-content:center; margin-top:14px; flex-wrap:wrap}
 
     @media (max-width: 1040px){
         .layout{grid-template-columns: 1fr}

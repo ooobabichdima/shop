@@ -95,6 +95,24 @@
         .crumbs a{color:rgba(255,255,255,.72)}
         .crumbs a:hover{color:var(--text)}
 
+        /* pagination */
+        .pagination{display:flex; gap:8px; justify-content:center; margin-top:14px; flex-wrap:wrap}
+        .pagination nav{display:contents}
+        .pagination ul{display:flex; gap:8px; list-style:none; padding:0; margin:0}
+        .pagination li{display:contents}
+        .pagination a,
+        .pagination span{
+            min-width:42px; height:42px; display:grid; place-items:center; border-radius:14px;
+            border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05);
+            cursor:pointer; transition:.12s ease; color:var(--text); font-size:14px; padding:0 12px;
+        }
+        .pagination a:hover{background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.20)}
+        .pagination .active span{
+            background:rgba(88,255,122,.18); border-color:rgba(88,255,122,.28);
+            color:rgba(255,255,255,.92); font-weight:900;
+        }
+        .pagination .disabled span{opacity:.4; cursor:not-allowed}
+
         /* footer */
         .footer{
             padding:22px 0 32px; border-top:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.10); margin-top:40px
