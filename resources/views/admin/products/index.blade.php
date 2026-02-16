@@ -7,6 +7,9 @@
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:16px;">
         <h1 style="margin:0;">Товари</h1>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <a href="{{ route('admin.import.index') }}" class="btn" style="background:rgba(255,204,0,.15);border-color:rgba(255,204,0,.3);">
+                📋 Імпорт прайсу
+            </a>
             <form method="POST" action="{{ route('admin.products.import') }}" style="margin:0;">
                 @csrf
                 <button type="submit" class="btn" style="background:rgba(56,189,248,.15);border-color:rgba(56,189,248,.3);" onclick="return confirm('Імпортувати тестові дані? Це створить нові товари, категорії та бренди.')">
@@ -95,7 +98,10 @@
                 <div style="font-size:48px;margin-bottom:16px;opacity:.5;">📦</div>
                 <h3 style="margin:0 0 8px;">Товарів ще немає</h3>
                 <p style="color:var(--muted);margin:0 0 20px;">Додайте перший товар або імпортуйте тестові дані</p>
-                <div style="display:flex;gap:10px;justify-content:center;">
+                <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                    <a href="{{ route('admin.import.index') }}" class="btn" style="background:rgba(255,204,0,.15);border-color:rgba(255,204,0,.3);">
+                        📋 Імпорт прайсу
+                    </a>
                     <form method="POST" action="{{ route('admin.products.import') }}" style="margin:0;">
                         @csrf
                         <button type="submit" class="btn" onclick="return confirm('Імпортувати тестові дані?')">

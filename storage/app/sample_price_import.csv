@@ -1,0 +1,16 @@
+sku;name;price;old_price;stock;category;brand
+AEG-TM-AK47;АЕГ Tokyo Marui AK47;8500;9500;15;Автомати;Tokyo Marui
+AEG-CM-M4A1;АЕГ Cyma M4A1 Carbine;5200;5800;22;Автомати;Cyma
+PISTOL-CG-G17;Пістолет Glock 17 Gen4;3200;;8;Пістолети;Cybergun
+PISTOL-WE-1911;Пістолет Colt 1911 MEU;2800;3100;12;Пістолети;WE
+SNIPER-WELL-L96;Снайперська гвинтівка L96;7500;8200;5;Снайперські гвинтівки;WELL
+VEST-CDR-MOLLE;Розвантажувальний жилет Tactical MOLLE;1800;2100;25;Екіпірування;Condor
+VEST-VPR-PC;Плитоноска Viper Tactical;3200;;18;Екіпірування;Viper
+BB-EXCEL-025;Кульки Excel Premium 0.25g (4000шт);320;380;150;Боєприпаси;Excel
+BB-ELITE-030;Кульки Elite Force 0.30g (3300шт);380;;95;Боєприпаси;Elite Force
+MAG-TM-AK;Магазин Tokyo Marui AK47 Hi-Cap;450;520;35;Магазини;Tokyo Marui
+BATT-TITAN-74;Акумулятор Titan Power 7.4V 1600mAh;680;;42;Акумулятори;Titan Power
+HOLSTER-BH-SERPA;Кобура Blackhawk SERPA;890;950;20;Екіпірування;Blackhawk
+GOGGLE-ESS-ICE;Окуляри захисні ESS ICE;1250;;28;Захист;ESS
+HELMET-EMERSON-FAST;Шолом Emerson FAST Helmet;1450;1600;14;Захист;Emerson
+GRENADE-TAG-TORNADO;Граната Thunder B TAG Tornado;850;;32;Гранати;TAG

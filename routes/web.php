@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PriceImportController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
@@ -57,6 +58,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::put('/products/{product}', [AdminProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [AdminProductController::class, 'destroy'])->name('products.destroy');
     Route::post('/products/import', [AdminProductController::class, 'importData'])->name('products.import');
+
+    // Price Import
+    Route::get('/import', [PriceImportController::class, 'index'])->name('import.index');
+    Route::post('/import', [PriceImportController::class, 'import'])->name('import.process');
 
     // Leads
     Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
