@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Attribute;
@@ -43,15 +44,27 @@ class CatalogController extends Controller
             'price_asc' => $query->orderBy('price', 'asc'),
             'price_desc' => $query->orderBy('price', 'desc'),
             'newest' => $query->orderBy('created_at', 'desc'),
+            'rating' => $query->orderBy('rating', 'desc'),
             default => $query->orderBy('views', 'desc'),
         };
 
         $products = $query->paginate(12);
 
+        // Get all brands that have products in this category
+        $brands = Brand::whereHas('products', function($q) use ($category) {
+            $q->where('category_id', $category->id)
+              ->where('is_active', true);
+        })->where('is_active', true)->orderBy('name')->get();
+
         $attributes = Attribute::where('is_filterable', true)
             ->orderBy('sort_order')
             ->get();
 
-        return view('pages.catalog', compact('category', 'products', 'attributes'));
+        // Total products count
+        $totalProducts = Product::where('category_id', $category->id)
+            ->where('is_active', true)
+            ->count();
+
+        return view('pages.catalog', compact('category', 'products', 'attributes', 'brands', 'totalProducts'));
     }
 }

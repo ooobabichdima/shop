@@ -14,45 +14,49 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create admin user
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
-        ]);
+        // Create admin user (skip if exists)
+        User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+            ]
+        );
 
-        // Create customer user
-        User::create([
-            'name' => 'Test Customer',
-            'email' => 'customer@example.com',
-            'password' => bcrypt('password'),
-            'role' => 'customer',
-        ]);
+        // Create customer user (skip if exists)
+        User::firstOrCreate(
+            ['email' => 'customer@example.com'],
+            [
+                'name' => 'Test Customer',
+                'password' => bcrypt('password'),
+                'role' => 'customer',
+            ]
+        );
 
-        // Create brands
-        $cyma = Brand::create(['name' => 'CYMA', 'slug' => 'cyma', 'is_active' => true]);
-        $gg = Brand::create(['name' => 'G&G', 'slug' => 'gg', 'is_active' => true]);
-        $tm = Brand::create(['name' => 'Tokyo Marui', 'slug' => 'tokyo-marui', 'is_active' => true]);
-        $specna = Brand::create(['name' => 'Specna Arms', 'slug' => 'specna-arms', 'is_active' => true]);
-        $asahi = Brand::create(['name' => 'ASG', 'slug' => 'asg', 'is_active' => true]);
+        // Create brands (skip if exists)
+        $cyma = Brand::firstOrCreate(['slug' => 'cyma'], ['name' => 'CYMA', 'is_active' => true]);
+        $gg = Brand::firstOrCreate(['slug' => 'gg'], ['name' => 'G&G', 'is_active' => true]);
+        $tm = Brand::firstOrCreate(['slug' => 'tokyo-marui'], ['name' => 'Tokyo Marui', 'is_active' => true]);
+        $specna = Brand::firstOrCreate(['slug' => 'specna-arms'], ['name' => 'Specna Arms', 'is_active' => true]);
+        $asahi = Brand::firstOrCreate(['slug' => 'asg'], ['name' => 'ASG', 'is_active' => true]);
 
-        // Create categories
-        $drives = Category::create(['name' => 'Приводи', 'slug' => 'drives', 'sort_order' => 1]);
-        $magazines = Category::create(['name' => 'Магазини', 'slug' => 'magazines', 'sort_order' => 2]);
-        $bbs = Category::create(['name' => 'Кульки (BBs)', 'slug' => 'bbs', 'sort_order' => 3]);
-        $batteries = Category::create(['name' => 'Акумулятори', 'slug' => 'batteries', 'sort_order' => 4]);
-        $chargers = Category::create(['name' => 'Зарядки', 'slug' => 'chargers', 'sort_order' => 5]);
-        $protection = Category::create(['name' => 'Захист', 'slug' => 'protection', 'sort_order' => 6]);
-        $tuning = Category::create(['name' => 'Тюнінг', 'slug' => 'tuning', 'sort_order' => 7]);
+        // Create categories (skip if exists)
+        $drives = Category::firstOrCreate(['slug' => 'drives'], ['name' => 'Приводи', 'sort_order' => 1, 'is_active' => true]);
+        $magazines = Category::firstOrCreate(['slug' => 'magazines'], ['name' => 'Магазини', 'sort_order' => 2, 'is_active' => true]);
+        $bbs = Category::firstOrCreate(['slug' => 'bbs'], ['name' => 'Кульки (BBs)', 'sort_order' => 3, 'is_active' => true]);
+        $batteries = Category::firstOrCreate(['slug' => 'batteries'], ['name' => 'Акумулятори', 'sort_order' => 4, 'is_active' => true]);
+        $chargers = Category::firstOrCreate(['slug' => 'chargers'], ['name' => 'Зарядки', 'sort_order' => 5, 'is_active' => true]);
+        $protection = Category::firstOrCreate(['slug' => 'protection'], ['name' => 'Захист', 'sort_order' => 6, 'is_active' => true]);
+        $tuning = Category::firstOrCreate(['slug' => 'tuning'], ['name' => 'Тюнінг', 'sort_order' => 7, 'is_active' => true]);
 
-        // Create attributes
-        Attribute::create(['code' => 'platform', 'name' => 'Платформа', 'type' => 'string', 'is_filterable' => true]);
-        Attribute::create(['code' => 'fps', 'name' => 'FPS', 'type' => 'number', 'is_filterable' => true]);
-        Attribute::create(['code' => 'type', 'name' => 'Тип', 'type' => 'string', 'is_filterable' => true]);
-        Attribute::create(['code' => 'material', 'name' => 'Матеріал', 'type' => 'string', 'is_filterable' => true]);
-        Attribute::create(['code' => 'capacity', 'name' => 'Ємність', 'type' => 'number', 'is_filterable' => true]);
-        Attribute::create(['code' => 'voltage', 'name' => 'Напруга', 'type' => 'string', 'is_filterable' => true]);
+        // Create attributes (skip if exists)
+        Attribute::firstOrCreate(['code' => 'platform'], ['name' => 'Платформа', 'type' => 'string', 'is_filterable' => true]);
+        Attribute::firstOrCreate(['code' => 'fps'], ['name' => 'FPS', 'type' => 'number', 'is_filterable' => true]);
+        Attribute::firstOrCreate(['code' => 'type'], ['name' => 'Тип', 'type' => 'string', 'is_filterable' => true]);
+        Attribute::firstOrCreate(['code' => 'material'], ['name' => 'Матеріал', 'type' => 'string', 'is_filterable' => true]);
+        Attribute::firstOrCreate(['code' => 'capacity'], ['name' => 'Ємність', 'type' => 'number', 'is_filterable' => true]);
+        Attribute::firstOrCreate(['code' => 'voltage'], ['name' => 'Напруга', 'type' => 'string', 'is_filterable' => true]);
 
         // === ПРИВОДИ (15 товарів) ===
         $products = [];
