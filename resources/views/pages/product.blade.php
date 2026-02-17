@@ -121,6 +121,30 @@
     .addon-check{display:flex; align-items:center; gap:10px}
     .addon-check input{width:16px; height:16px; accent-color: var(--accent)}
     .addon-price{font-weight:950}
+
+    .addon-controls{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .mini-qty{
+        display:flex; align-items:center; gap:6px;
+        border:1px solid rgba(255,255,255,.14);
+        background:rgba(0,0,0,.16);
+        padding:6px; border-radius:12px;
+    }
+    .mini-qty button{
+        width:28px; height:28px; border-radius:10px;
+        border:1px solid rgba(255,255,255,.12);
+        background:rgba(255,255,255,.06);
+        color:var(--text);
+        cursor:pointer;
+    }
+    .mini-qty input{
+        width:44px; text-align:center;
+        border:none; outline:none; background:transparent; color:var(--text);
+        font-weight:950;
+    }
+    .mini-qty[aria-disabled="true"]{opacity:.55}
+    .mini-qty[aria-disabled="true"] button,
+    .mini-qty[aria-disabled="true"] input{pointer-events:none}
+
     .bundle-total{
         padding:12px 14px; border-radius:18px; border:1px solid rgba(255,255,255,.12);
         background:rgba(0,0,0,.18); display:flex; justify-content:space-between;
@@ -349,20 +373,31 @@
 
     <div class="bundle-body">
         <div class="bundle-items">
-            @foreach($product->recommended->take(4) as $rec)
-            <div class="addon">
+            @foreach($product->recommended->take(4) as $index => $rec)
+            <div class="addon" data-has-qty="{{ $index === 0 ? '1' : '0' }}">
                 <div class="addon-top">
                     <div>
                         <div class="addon-title">{{ $rec->name }}</div>
                         <div class="addon-meta">{{ $rec->brand ? $rec->brand->name : 'SKU: ' . $rec->sku }}</div>
                     </div>
-                    <div class="addon-check">
-                        <input type="checkbox" class="addonBox" data-addon-id="{{ $rec->id }}" data-addon-price="{{ $rec->price }}" />
-                        <span class="addon-price">{{ number_format($rec->price, 0) }} грн</span>
+
+                    <div class="addon-controls">
+                        <label class="addon-check" title="Додати">
+                            <input type="checkbox" class="addonBox" data-addon-id="{{ $rec->id }}" data-addon-price="{{ $rec->price }}" />
+                            <span class="addon-price">{{ number_format($rec->price, 0) }} грн{{ $index === 0 ? '/шт' : '' }}</span>
+                        </label>
+
+                        @if($index === 0)
+                        <div class="mini-qty" aria-label="Кількість" aria-disabled="true">
+                            <button type="button" class="aqMinus" aria-label="Мінус">−</button>
+                            <input type="text" class="aqInput" value="1" inputmode="numeric" />
+                            <button type="button" class="aqPlus" aria-label="Плюс">+</button>
+                        </div>
+                        @endif
                     </div>
                 </div>
                 @if($rec->description)
-                <div class="muted2" style="font-size:13px;">{{ Str::limit($rec->description, 80) }}</div>
+                <div class="muted2" style="font-size:13px;">{{ Str::limit($rec->description, 80) }}{{ $index === 0 ? ' Можна обрати кількість.' : '' }}</div>
                 @endif
             </div>
             @endforeach
@@ -370,10 +405,13 @@
 
         <div class="bundle-total">
             <div>
-                <div style="font-size:14px; color:var(--muted); margin-bottom:4px;">Разом:</div>
-                <div class="sum" id="bundleSum">{{ number_format($product->price, 0) }} грн</div>
+                <div class="muted2" style="font-size:13px;">Разом по додаткам (до товару):</div>
+                <div class="sum" id="bundleSum">0 грн</div>
             </div>
-            <button class="btn primary" type="button" id="addBundleToCart">Додати обране в кошик</button>
+            <div class="row" style="flex-wrap:wrap; justify-content:flex-end;">
+                <button class="btn small" type="button" id="clearAddons">Очистити</button>
+                <button class="btn primary" type="button" id="addBundleToCart">Додати обране</button>
+            </div>
         </div>
     </div>
 </div>
@@ -443,17 +481,21 @@
     });
 
     // Bundle functionality
-    const basePrice = {{ $product->price }};
     const addonBoxes = document.querySelectorAll('.addonBox');
     const bundleSumEl = document.getElementById('bundleSum');
     const selectRecommendedBtn = document.getElementById('selectRecommended');
     const addBundleBtn = document.getElementById('addBundleToCart');
+    const clearAddonsBtn = document.getElementById('clearAddons');
 
     function updateBundleSum() {
-        let total = basePrice;
+        let total = 0;
         addonBoxes.forEach(box => {
             if (box.checked) {
-                total += parseInt(box.dataset.addonPrice || 0);
+                const addonEl = box.closest('.addon');
+                const price = parseInt(box.dataset.addonPrice || 0);
+                const mq = addonEl.querySelector('.mini-qty');
+                const qty = mq ? (parseInt(mq.querySelector('.aqInput').value) || 1) : 1;
+                total += price * qty;
             }
         });
         if (bundleSumEl) {
@@ -461,13 +503,64 @@
         }
     }
 
+    // Enable/disable mini-qty based on checkbox
     addonBoxes.forEach(box => {
-        box.addEventListener('change', updateBundleSum);
+        box.addEventListener('change', () => {
+            const addonEl = box.closest('.addon');
+            const mq = addonEl.querySelector('.mini-qty');
+            if (mq) {
+                mq.setAttribute('aria-disabled', box.checked ? 'false' : 'true');
+            }
+            updateBundleSum();
+        });
+    });
+
+    // Mini-qty controls
+    document.querySelectorAll('.aqMinus').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = btn.parentElement.querySelector('.aqInput');
+            const val = parseInt(input.value) || 1;
+            if (val > 1) {
+                input.value = val - 1;
+                updateBundleSum();
+            }
+        });
+    });
+
+    document.querySelectorAll('.aqPlus').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = btn.parentElement.querySelector('.aqInput');
+            const val = parseInt(input.value) || 1;
+            if (val < 99) {
+                input.value = val + 1;
+                updateBundleSum();
+            }
+        });
     });
 
     selectRecommendedBtn?.addEventListener('click', () => {
         const allChecked = Array.from(addonBoxes).every(box => box.checked);
-        addonBoxes.forEach(box => box.checked = !allChecked);
+        addonBoxes.forEach(box => {
+            box.checked = !allChecked;
+            const addonEl = box.closest('.addon');
+            const mq = addonEl.querySelector('.mini-qty');
+            if (mq) {
+                mq.setAttribute('aria-disabled', box.checked ? 'false' : 'true');
+            }
+        });
+        updateBundleSum();
+    });
+
+    clearAddonsBtn?.addEventListener('click', () => {
+        addonBoxes.forEach(box => {
+            box.checked = false;
+            const addonEl = box.closest('.addon');
+            const mq = addonEl.querySelector('.mini-qty');
+            if (mq) {
+                mq.setAttribute('aria-disabled', 'true');
+                mq.querySelector('.aqInput').value = 1;
+            }
+        });
         updateBundleSum();
     });
 
@@ -481,7 +574,7 @@
             return;
         }
 
-        alert(`Додано основний товар та ${selectedIds.length} додаткових товарів до кошика`);
+        alert(`Додано ${selectedIds.length} додаткових товарів до кошика`);
         // TODO: Implement actual cart addition
     });
 

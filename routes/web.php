@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\BrandController as AdminBrandController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\OrderController;
@@ -54,6 +56,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+    // Categories
+    Route::get('/categories', [AdminCategoryController::class, 'index'])->name('categories.index');
+    Route::get('/categories/create', [AdminCategoryController::class, 'create'])->name('categories.create');
+    Route::post('/categories', [AdminCategoryController::class, 'store'])->name('categories.store');
+    Route::get('/categories/{category}/edit', [AdminCategoryController::class, 'edit'])->name('categories.edit');
+    Route::put('/categories/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
+
+    // Brands
+    Route::get('/brands', [AdminBrandController::class, 'index'])->name('brands.index');
+    Route::get('/brands/create', [AdminBrandController::class, 'create'])->name('brands.create');
+    Route::post('/brands', [AdminBrandController::class, 'store'])->name('brands.store');
+    Route::get('/brands/{brand}/edit', [AdminBrandController::class, 'edit'])->name('brands.edit');
+    Route::put('/brands/{brand}', [AdminBrandController::class, 'update'])->name('brands.update');
+    Route::delete('/brands/{brand}', [AdminBrandController::class, 'destroy'])->name('brands.destroy');
 
     // Products
     Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
