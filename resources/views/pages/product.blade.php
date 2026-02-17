@@ -291,7 +291,7 @@
 </section>
 
 <!-- Tuning Kits -->
-@if($product->tuning_kits && count($product->tuning_kits) > 0)
+@if(isset($product->tuning_kits) && is_array($product->tuning_kits) && count($product->tuning_kits) > 0)
 <div class="section-title">
     <div>
         <h2>Пакети тюнінгу</h2>

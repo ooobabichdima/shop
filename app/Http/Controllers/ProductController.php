@@ -13,8 +13,8 @@ class ProductController extends Controller
             'brand',
             'images',
             'attributes',
-            'recommended.primaryImage',
-            'tuningKits.primaryImage',
+            'recommended.brand',
+            'recommended.category',
         ])
             ->where('slug', $slug)
             ->where('is_active', true)

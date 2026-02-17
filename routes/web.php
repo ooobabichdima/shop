@@ -19,6 +19,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+// Debug route (remove in production)
+Route::get('/debug', function () {
+    return view('debug');
+});
+
 // Frontend
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/category/{slug}', [CatalogController::class, 'show'])->name('category.show');
