@@ -21,6 +21,7 @@ class Product extends Model
         'stock',
         'specs',
         'tuning_kits',
+        'youtube_url',
         'is_active',
         'is_featured',
         'is_new',
@@ -104,6 +105,26 @@ class Product extends Model
     public function isInStock(): bool
     {
         return $this->stock > 0;
+    }
+
+    public function getYoutubeVideoId(): ?string
+    {
+        if (!$this->youtube_url) {
+            return null;
+        }
+
+        // Extract video ID from various YouTube URL formats
+        // https://www.youtube.com/watch?v=VIDEO_ID
+        // https://youtu.be/VIDEO_ID
+        // https://www.youtube.com/embed/VIDEO_ID
+
+        $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i';
+
+        if (preg_match($pattern, $this->youtube_url, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 
     public function incrementViews(): void

@@ -33,8 +33,9 @@ class ProductController extends Controller
     {
         $categories = Category::where('is_active', true)->orderBy('name')->get();
         $brands = Brand::where('is_active', true)->orderBy('name')->get();
+        $products = Product::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.products.create', compact('categories', 'brands'));
+        return view('admin.products.create', compact('categories', 'brands', 'products'));
     }
 
     public function store(Request $request)
@@ -45,12 +46,17 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'sku' => 'required|string|max:100|unique:products,sku',
             'description' => 'nullable|string',
+            'youtube_url' => 'nullable|url',
             'price' => 'required|numeric|min:0',
             'old_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'specs' => 'nullable|string',
+            'tuning_kits' => 'nullable|string',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
             'is_new' => 'boolean',
+            'recommended_products' => 'nullable|array',
+            'recommended_products.*' => 'exists:products,id',
         ]);
 
         // Generate slug from name
@@ -64,7 +70,33 @@ class ProductController extends Controller
             $count++;
         }
 
+        // Decode JSON fields
+        if (!empty($validated['specs'])) {
+            $specs = json_decode($validated['specs'], true);
+            $validated['specs'] = $specs ?: null;
+        }
+
+        if (!empty($validated['tuning_kits'])) {
+            $tuningKits = json_decode($validated['tuning_kits'], true);
+            $validated['tuning_kits'] = $tuningKits ?: null;
+        }
+
+        $recommendedProducts = $validated['recommended_products'] ?? [];
+        unset($validated['recommended_products']);
+
         $product = Product::create($validated);
+
+        // Sync recommended products
+        if (!empty($recommendedProducts)) {
+            $syncData = [];
+            foreach ($recommendedProducts as $index => $productId) {
+                $syncData[$productId] = [
+                    'type' => 'recommended',
+                    'sort_order' => $index
+                ];
+            }
+            $product->recommended()->sync($syncData);
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Товар створено успішно');
     }
@@ -73,8 +105,9 @@ class ProductController extends Controller
     {
         $categories = Category::where('is_active', true)->orderBy('name')->get();
         $brands = Brand::where('is_active', true)->orderBy('name')->get();
+        $products = Product::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.products.edit', compact('product', 'categories', 'brands'));
+        return view('admin.products.edit', compact('product', 'categories', 'brands', 'products'));
     }
 
     public function update(Request $request, Product $product)
@@ -85,12 +118,17 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'sku' => 'required|string|max:100|unique:products,sku,' . $product->id,
             'description' => 'nullable|string',
+            'youtube_url' => 'nullable|url',
             'price' => 'required|numeric|min:0',
             'old_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'specs' => 'nullable|string',
+            'tuning_kits' => 'nullable|string',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
             'is_new' => 'boolean',
+            'recommended_products' => 'nullable|array',
+            'recommended_products.*' => 'exists:products,id',
         ]);
 
         // Update slug if name changed
@@ -106,7 +144,39 @@ class ProductController extends Controller
             }
         }
 
+        // Decode JSON fields
+        if (!empty($validated['specs'])) {
+            $specs = json_decode($validated['specs'], true);
+            $validated['specs'] = $specs ?: null;
+        } else {
+            $validated['specs'] = null;
+        }
+
+        if (!empty($validated['tuning_kits'])) {
+            $tuningKits = json_decode($validated['tuning_kits'], true);
+            $validated['tuning_kits'] = $tuningKits ?: null;
+        } else {
+            $validated['tuning_kits'] = null;
+        }
+
+        $recommendedProducts = $validated['recommended_products'] ?? [];
+        unset($validated['recommended_products']);
+
         $product->update($validated);
+
+        // Sync recommended products
+        if (!empty($recommendedProducts)) {
+            $syncData = [];
+            foreach ($recommendedProducts as $index => $productId) {
+                $syncData[$productId] = [
+                    'type' => 'recommended',
+                    'sort_order' => $index
+                ];
+            }
+            $product->recommended()->sync($syncData);
+        } else {
+            $product->recommended()->detach();
+        }
 
         return back()->with('success', 'Товар оновлено успішно');
     }

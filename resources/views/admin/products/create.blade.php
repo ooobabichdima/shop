@@ -84,6 +84,18 @@
                 @enderror
             </div>
 
+            <div style="margin-bottom:20px;">
+                <label style="display:block;margin-bottom:8px;font-weight:700;">YouTube відео</label>
+                <input type="url" name="youtube_url" value="{{ old('youtube_url') }}"
+                    style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:15px;"
+                    placeholder="https://www.youtube.com/watch?v=...">
+                <small style="color:var(--muted);margin-top:4px;display:block;">Вставте посилання на YouTube відео</small>
+                @error('youtube_url')
+                    <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
+                @enderror
+            </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
                 <div>
                     <label style="display:block;margin-bottom:8px;font-weight:700;">Ціна, грн *</label>
@@ -139,6 +151,47 @@
                         style="width:18px;height:18px;accent-color:var(--accent);">
                     <span>Новинка</span>
                 </label>
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label style="display:block;margin-bottom:8px;font-weight:700;">Характеристики (JSON)</label>
+                <textarea name="specs" rows="6"
+                    style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;font-family:monospace;resize:vertical;"
+                    placeholder='{"Швидкість пострілу":"300-320 м/с","Ємність магазину":"120 куль","Вага":"2.8 кг"}'>{{ old('specs') }}</textarea>
+                <small style="color:var(--muted);margin-top:4px;display:block;">Формат JSON: {"Назва характеристики": "Значення"}</small>
+                @error('specs')
+                    <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label style="display:block;margin-bottom:8px;font-weight:700;">Пакети для тюнінгу (JSON)</label>
+                <textarea name="tuning_kits" rows="8"
+                    style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;font-family:monospace;resize:vertical;"
+                    placeholder='[{"name":"Базовий тюнінг","price":1500,"items":["Заміна пружини","Регулювання хопапу","Змащення"]},{"name":"Розширений","price":3500,"items":["Базовий тюнінг","Заміна циліндра","Встановлення тайт-бору"]}]'>{{ old('tuning_kits') }}</textarea>
+                <small style="color:var(--muted);margin-top:4px;display:block;">Формат JSON: масив об'єктів з полями name, price, items (масив)</small>
+                @error('tuning_kits')
+                    <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div style="margin-bottom:24px;">
+                <label style="display:block;margin-bottom:8px;font-weight:700;">Рекомендовані товари</label>
+                <select name="recommended_products[]" multiple size="8"
+                    style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:14px;">
+                    @foreach($products as $p)
+                        <option value="{{ $p->id }}" style="padding:6px;">
+                            {{ $p->name }} ({{ number_format($p->price, 0, '', ' ') }} грн)
+                        </option>
+                    @endforeach
+                </select>
+                <small style="color:var(--muted);margin-top:4px;display:block;">Тримайте Ctrl (Cmd на Mac) щоб вибрати декілька товарів</small>
+                @error('recommended_products')
+                    <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
+                @enderror
             </div>
 
             <div style="display:flex;gap:12px;">

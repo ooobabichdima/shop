@@ -203,11 +203,32 @@
         </div>
 
         <div class="main-shot" id="mainShot" aria-label="Основне зображення">
-            <span>📦</span>
+            @if($product->getYoutubeVideoId())
+                <div id="videoContainer" style="display:none;width:100%;height:100%;">
+                    <iframe
+                        id="youtubeFrame"
+                        width="100%"
+                        height="100%"
+                        src="https://www.youtube.com/embed/{{ $product->getYoutubeVideoId() }}?rel=0"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        style="border-radius:18px;">
+                    </iframe>
+                </div>
+            @endif
+            <span id="placeholderIcon">📦</span>
         </div>
 
         <div class="thumbs" role="list" aria-label="Мініатюри">
-            <button class="thumb active" data-shot="1" type="button" aria-label="Фото 1">1</button>
+            @if($product->getYoutubeVideoId())
+            <button class="thumb active" data-shot="video" type="button" aria-label="Відео">
+                <div style="position:relative;display:grid;place-items:center;width:100%;height:100%;">
+                    <span style="font-size:24px;">▶</span>
+                </div>
+            </button>
+            @endif
+            <button class="thumb {{ !$product->getYoutubeVideoId() ? 'active' : '' }}" data-shot="1" type="button" aria-label="Фото 1">1</button>
             <button class="thumb" data-shot="2" type="button" aria-label="Фото 2">2</button>
             <button class="thumb" data-shot="3" type="button" aria-label="Фото 3">3</button>
             <button class="thumb" data-shot="4" type="button" aria-label="Фото 4">4</button>
@@ -473,10 +494,25 @@
     });
 
     // Thumbs
+    const videoContainer = document.getElementById('videoContainer');
+    const placeholderIcon = document.getElementById('placeholderIcon');
+
     document.querySelectorAll('.thumb').forEach(thumb => {
         thumb.addEventListener('click', () => {
             document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
             thumb.classList.add('active');
+
+            const shotType = thumb.dataset.shot;
+
+            if (shotType === 'video' && videoContainer) {
+                // Show video
+                videoContainer.style.display = 'block';
+                placeholderIcon.style.display = 'none';
+            } else {
+                // Show photo placeholder
+                if (videoContainer) videoContainer.style.display = 'none';
+                if (placeholderIcon) placeholderIcon.style.display = 'block';
+            }
         });
     });
 
