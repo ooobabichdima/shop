@@ -74,6 +74,52 @@
             </div>
         </div>
 
+        <div class="card" style="padding:20px;margin-bottom:16px;">
+            <h2 style="margin:0 0 12px;">⚙️ Фільтри та атрибути</h2>
+            <p style="margin:0 0 16px;color:var(--muted);font-size:14px;">Оберіть атрибути, які будуть доступні для фільтрації товарів у цій категорії</p>
+
+            @if($attributes->isEmpty())
+                <div style="padding:20px;text-align:center;background:rgba(255,255,255,.03);border-radius:14px;border:1px solid rgba(255,255,255,.08);">
+                    <div style="color:var(--muted);margin-bottom:12px;">Атрибутів ще немає</div>
+                    <a href="{{ route('admin.attributes.create') }}" class="btn primary small">+ Створити перший атрибут</a>
+                </div>
+            @else
+                <div style="display:grid;gap:10px;">
+                    @foreach($attributes as $attr)
+                    <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);cursor:pointer;transition:.12s ease;"
+                        onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+                        <input type="checkbox" name="attributes[]" value="{{ $attr->id }}"
+                            {{ in_array($attr->id, old('attributes', $category->attributes->pluck('id')->toArray())) ? 'checked' : '' }}
+                            style="width:18px;height:18px;accent-color:var(--accent);">
+                        <div style="flex:1;">
+                            <b style="font-size:14px;">{{ $attr->name }}</b>
+                            <div style="color:var(--muted);font-size:12px;margin-top:2px;">
+                                @php
+                                    $typeLabels = [
+                                        'text' => '📝 Текст',
+                                        'select' => '📋 Список',
+                                        'checkbox' => '☑️ Чекбокси',
+                                        'range' => '📊 Діапазон'
+                                    ];
+                                @endphp
+                                {{ $typeLabels[$attr->type] ?? $attr->type }}
+                                @if($attr->options && count($attr->options) > 0)
+                                    • {{ count($attr->options) }} варіантів
+                                @endif
+                            </div>
+                        </div>
+                    </label>
+                    @endforeach
+                </div>
+
+                <div style="margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(88,255,122,.08);border:1px solid rgba(88,255,122,.18);">
+                    <small style="color:var(--muted);font-size:12px;">
+                        💡 <b>Підказка:</b> Обрані атрибути будуть відображатися як фільтри в каталозі цієї категорії
+                    </small>
+                </div>
+            @endif
+        </div>
+
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <button type="submit" class="btn primary">Зберегти зміни</button>
             <a href="{{ route('admin.categories.index') }}" class="btn">Скасувати</a>

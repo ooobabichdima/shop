@@ -73,9 +73,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::put('/brands/{brand}', [AdminBrandController::class, 'update'])->name('brands.update');
     Route::delete('/brands/{brand}', [AdminBrandController::class, 'destroy'])->name('brands.destroy');
 
+    // Attributes
+    Route::get('/attributes', [\App\Http\Controllers\Admin\AttributeController::class, 'index'])->name('attributes.index');
+    Route::get('/attributes/create', [\App\Http\Controllers\Admin\AttributeController::class, 'create'])->name('attributes.create');
+    Route::post('/attributes', [\App\Http\Controllers\Admin\AttributeController::class, 'store'])->name('attributes.store');
+    Route::get('/attributes/{attribute}/edit', [\App\Http\Controllers\Admin\AttributeController::class, 'edit'])->name('attributes.edit');
+    Route::put('/attributes/{attribute}', [\App\Http\Controllers\Admin\AttributeController::class, 'update'])->name('attributes.update');
+    Route::delete('/attributes/{attribute}', [\App\Http\Controllers\Admin\AttributeController::class, 'destroy'])->name('attributes.destroy');
+
     // Products
     Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
     Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create');
+    Route::get('/products/search', [AdminProductController::class, 'search'])->name('products.search');
     Route::post('/products', [AdminProductController::class, 'store'])->name('products.store');
     Route::get('/products/{product}/edit', [AdminProductController::class, 'edit'])->name('products.edit');
     Route::put('/products/{product}', [AdminProductController::class, 'update'])->name('products.update');

@@ -188,6 +188,26 @@ class ProductController extends Controller
         return back()->with('success', 'Товар видалено успішно');
     }
 
+    public function search(Request $request)
+    {
+        $query = $request->get('q', '');
+        $exclude = $request->get('exclude');
+
+        $products = Product::where('is_active', true)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('sku', 'like', "%{$query}%");
+            })
+            ->when($exclude, function ($q) use ($exclude) {
+                $q->where('id', '!=', $exclude);
+            })
+            ->orderBy('name')
+            ->limit(20)
+            ->get(['id', 'name', 'sku', 'price']);
+
+        return response()->json($products);
+    }
+
     public function importData()
     {
         try {

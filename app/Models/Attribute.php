@@ -10,24 +10,33 @@ class Attribute extends Model
     use HasFactory;
 
     protected $fillable = [
-        'code',
         'name',
+        'slug',
         'type',
-        'is_filterable',
+        'options',
         'sort_order',
+        'is_filterable',
+        'is_active',
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'options' => 'array',
+        'is_filterable' => 'boolean',
+        'is_active' => 'boolean',
+    ];
+
+    public function categories()
     {
-        return [
-            'is_filterable' => 'boolean',
-        ];
+        return $this->belongsToMany(Category::class, 'attribute_category')
+            ->withPivot('sort_order')
+            ->withTimestamps()
+            ->orderBy('attribute_category.sort_order');
     }
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'product_attributes')
-            ->withPivot(['value_string', 'value_number', 'value_bool'])
+        return $this->belongsToMany(Product::class, 'attribute_product')
+            ->withPivot('value')
             ->withTimestamps();
     }
 }

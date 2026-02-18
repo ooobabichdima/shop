@@ -179,20 +179,108 @@
 
             <div style="margin-bottom:24px;">
                 <label style="display:block;margin-bottom:8px;font-weight:700;">Рекомендовані товари</label>
-                <select name="recommended_products[]" multiple size="8"
-                    style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
-                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:14px;">
-                    @foreach($products as $p)
-                        <option value="{{ $p->id }}" style="padding:6px;">
-                            {{ $p->name }} ({{ number_format($p->price, 0, '', ' ') }} грн)
-                        </option>
-                    @endforeach
-                </select>
-                <small style="color:var(--muted);margin-top:4px;display:block;">Тримайте Ctrl (Cmd на Mac) щоб вибрати декілька товарів</small>
+                <div style="margin-bottom:10px;">
+                    <input type="text" id="productSearch" placeholder="Почніть вводити назву товару..."
+                        style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+                        background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:14px;">
+                    <div id="searchResults" style="display:none;max-height:240px;overflow-y:auto;margin-top:8px;
+                        border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(0,0,0,.18);"></div>
+                </div>
+                <div id="selectedProducts" style="display:grid;gap:8px;margin-bottom:10px;"></div>
+                <small style="color:var(--muted);display:block;">Використовуйте пошук вище щоб додати товари</small>
                 @error('recommended_products')
                     <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
                 @enderror
             </div>
+
+            <script>
+            (function(){
+                const searchInput = document.getElementById('productSearch');
+                const searchResults = document.getElementById('searchResults');
+                const selectedContainer = document.getElementById('selectedProducts');
+                let searchTimeout = null;
+                let selectedIds = [];
+
+                searchInput.addEventListener('input', (e) => {
+                    clearTimeout(searchTimeout);
+                    const query = e.target.value.trim();
+
+                    if(query.length < 2){
+                        searchResults.style.display = 'none';
+                        return;
+                    }
+
+                    searchTimeout = setTimeout(() => {
+                        fetch(`/admin/products/search?q=${encodeURIComponent(query)}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                if(data.length === 0){
+                                    searchResults.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:13px;">Нічого не знайдено</div>';
+                                    searchResults.style.display = 'block';
+                                    return;
+                                }
+
+                                searchResults.innerHTML = data.map(p => `
+                                    <div class="search-result-item" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}"
+                                        style="padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer;
+                                        ${selectedIds.includes(p.id) ? 'opacity:0.4;pointer-events:none;' : ''}">
+                                        <b style="font-size:13.5px;">${p.name}</b>
+                                        <div style="color:var(--muted);font-size:12px;margin-top:2px;">${p.price.toLocaleString('uk-UA')} грн • SKU: ${p.sku}</div>
+                                    </div>
+                                `).join('');
+                                searchResults.style.display = 'block';
+
+                                searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                                    item.addEventListener('click', () => {
+                                        const id = parseInt(item.dataset.id);
+                                        const name = item.dataset.name;
+                                        const price = parseFloat(item.dataset.price);
+                                        addSelectedProduct(id, name, price);
+                                        searchInput.value = '';
+                                        searchResults.style.display = 'none';
+                                    });
+                                });
+                            })
+                            .catch(err => console.error('Search error:', err));
+                    }, 300);
+                });
+
+                function addSelectedProduct(id, name, price){
+                    if(selectedIds.includes(id)) return;
+                    selectedIds.push(id);
+
+                    const div = document.createElement('div');
+                    div.className = 'selected-product';
+                    div.dataset.id = id;
+                    div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);';
+                    div.innerHTML = `
+                        <div>
+                            <b style="font-size:13.5px;">${name}</b>
+                            <div style="color:var(--muted);font-size:12px;margin-top:2px;">${price.toLocaleString('uk-UA')} грн</div>
+                        </div>
+                        <button type="button" class="remove-product" data-id="${id}"
+                            style="padding:6px 10px;border-radius:10px;border:1px solid rgba(255,77,77,.3);
+                            background:rgba(255,77,77,.1);color:rgba(255,77,77,.95);cursor:pointer;font-size:12px;font-weight:700;">
+                            Видалити
+                        </button>
+                        <input type="hidden" name="recommended_products[]" value="${id}">
+                    `;
+
+                    div.querySelector('.remove-product').addEventListener('click', () => {
+                        selectedIds = selectedIds.filter(sid => sid !== id);
+                        div.remove();
+                    });
+
+                    selectedContainer.appendChild(div);
+                }
+
+                document.addEventListener('click', (e) => {
+                    if(!searchInput.contains(e.target) && !searchResults.contains(e.target)){
+                        searchResults.style.display = 'none';
+                    }
+                });
+            })();
+            </script>
 
             <div style="display:flex;gap:12px;">
                 <button type="submit" class="btn primary">

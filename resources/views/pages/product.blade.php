@@ -112,12 +112,22 @@
     .bundle-items{display:grid; grid-template-columns: repeat(2,1fr); gap:12px}
     .addon{
         padding:12px; border-radius:16px; border:1px solid rgba(255,255,255,.12);
-        background:rgba(255,255,255,.05); display:grid; gap:10px;
+        background:rgba(255,255,255,.05);
     }
     .addon:hover{border-color:rgba(255,255,255,.22); background:rgba(255,255,255,.06)}
-    .addon-top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
+    .addon-top{display:flex; gap:12px; align-items:flex-start}
+    .addon-img{
+        width:64px; height:64px; min-width:64px; border-radius:12px;
+        border:1px solid rgba(255,255,255,.12);
+        background:radial-gradient(30px 30px at 30% 30%, rgba(255,255,255,.10), transparent 60%),
+                   linear-gradient(135deg, rgba(88,255,122,.16), rgba(56,189,248,.10));
+        display:grid; place-items:center; overflow:hidden;
+    }
+    .addon-img img{width:100%; height:100%; object-fit:cover}
+    .addon-info{flex:1; display:flex; flex-direction:column; gap:4px}
     .addon-title{font-weight:950; font-size:14px}
     .addon-meta{color:rgba(255,255,255,.60); font-size:12.5px}
+    .addon-controls{display:flex; flex-direction:column; gap:8px; align-items:flex-end}
     .addon-check{display:flex; align-items:center; gap:10px}
     .addon-check input{width:16px; height:16px; accent-color: var(--accent)}
     .addon-price{font-weight:950}
@@ -397,9 +407,21 @@
             @foreach($product->recommended->take(4) as $index => $rec)
             <div class="addon" data-has-qty="{{ $index === 0 ? '1' : '0' }}">
                 <div class="addon-top">
-                    <div>
+                    <div class="addon-img">
+                        @if($rec->primaryImage)
+                            <img src="{{ asset('storage/' . $rec->primaryImage->image_path) }}" alt="{{ $rec->name }}">
+                        @else
+                            <svg width="32" height="32" viewBox="0 0 120 120" fill="none">
+                                <path d="M20 70c20-18 40-26 80-30l5 10-70 16-6 10-9 2Z" stroke="rgba(255,255,255,.9)" stroke-width="4" stroke-linejoin="round"/>
+                            </svg>
+                        @endif
+                    </div>
+                    <div class="addon-info">
                         <div class="addon-title">{{ $rec->name }}</div>
                         <div class="addon-meta">{{ $rec->brand ? $rec->brand->name : 'SKU: ' . $rec->sku }}</div>
+                        @if($rec->description)
+                        <div class="muted2" style="font-size:12px; margin-top:4px;">{{ Str::limit($rec->description, 60) }}</div>
+                        @endif
                     </div>
 
                     <div class="addon-controls">
@@ -417,9 +439,6 @@
                         @endif
                     </div>
                 </div>
-                @if($rec->description)
-                <div class="muted2" style="font-size:13px;">{{ Str::limit($rec->description, 80) }}{{ $index === 0 ? ' Можна обрати кількість.' : '' }}</div>
-                @endif
             </div>
             @endforeach
         </div>
@@ -449,7 +468,13 @@
     @foreach($product->recommended->skip(4)->take(4) as $rec)
     <a href="{{ route('product.show', $rec->slug) }}" class="p" style="text-decoration:none;color:inherit;">
         <div class="img">
-            <span>📦</span>
+            @if($rec->primaryImage)
+                <img src="{{ asset('storage/' . $rec->primaryImage->image_path) }}" alt="{{ $rec->name }}" style="width:100%;height:100%;object-fit:cover;">
+            @else
+                <svg width="48" height="48" viewBox="0 0 120 120" fill="none">
+                    <path d="M20 70c20-18 40-26 80-30l5 10-70 16-6 10-9 2Z" stroke="rgba(255,255,255,.9)" stroke-width="4" stroke-linejoin="round"/>
+                </svg>
+            @endif
         </div>
         <div class="body">
             <div class="title">{{ $rec->name }}</div>

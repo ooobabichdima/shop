@@ -39,4 +39,12 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function attributes()
+    {
+        return $this->belongsToMany(Attribute::class, 'attribute_category')
+            ->withPivot('sort_order')
+            ->withTimestamps()
+            ->orderBy('attribute_category.sort_order');
+    }
 }

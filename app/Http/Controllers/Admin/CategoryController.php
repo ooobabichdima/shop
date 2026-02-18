@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attribute;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -48,7 +49,8 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        return view('admin.categories.edit', compact('category'));
+        $attributes = Attribute::where('is_active', true)->orderBy('name')->get();
+        return view('admin.categories.edit', compact('category', 'attributes'));
     }
 
     public function update(Request $request, Category $category)
@@ -56,6 +58,8 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'sort_order' => 'nullable|integer',
+            'attributes' => 'nullable|array',
+            'attributes.*' => 'exists:attributes,id',
         ]);
 
         $slug = Str::slug($request->name);
@@ -75,6 +79,17 @@ class CategoryController extends Controller
             'sort_order' => $request->sort_order ?? 0,
             'is_active' => $request->has('is_active'),
         ]);
+
+        // Sync attributes
+        if ($request->has('attributes')) {
+            $syncData = [];
+            foreach ($request->attributes as $index => $attributeId) {
+                $syncData[$attributeId] = ['sort_order' => $index];
+            }
+            $category->attributes()->sync($syncData);
+        } else {
+            $category->attributes()->detach();
+        }
 
         return redirect()->route('admin.categories.index')->with('success', 'Категорію оновлено успішно!');
     }
