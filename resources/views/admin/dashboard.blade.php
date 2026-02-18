@@ -1,6 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
-@section('title', 'Адмін панель - Strikeball Shop')
+@section('title', 'Панель управління - Адмін')
 
 @section('content')
 <div style="padding:20px 0;">

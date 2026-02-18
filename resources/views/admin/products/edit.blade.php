@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Редагувати товар - Адмін')
 
@@ -98,6 +98,54 @@
                 @enderror
             </div>
 
+            <div style="margin-bottom:20px;">
+                <label style="display:block;margin-bottom:8px;font-weight:700;">Колір товару</label>
+                <input type="text" name="color" value="{{ old('color', $product->color) }}"
+                    style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:15px;"
+                    placeholder="Чорний, Зелений, Tan, Coyote...">
+                <small style="color:var(--muted);margin-top:4px;display:block;">Колір для варіацій товару (якщо є)</small>
+                @error('color')
+                    <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div style="margin-bottom:24px;">
+                <label style="display:block;margin-bottom:8px;font-weight:700;">Варіації товару (інші кольори)</label>
+                <div style="margin-bottom:10px;">
+                    <input type="text" id="variationSearch" placeholder="Знайти варіацію за назвою або SKU..."
+                        style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+                        background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:14px;">
+                    <div id="variationSearchResults" style="display:none;max-height:240px;overflow-y:auto;margin-top:8px;
+                        border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(0,0,0,.18);"></div>
+                </div>
+                <div id="selectedVariations" style="display:grid;gap:8px;margin-bottom:10px;">
+                    @foreach($product->variations as $variation)
+                    <div class="selected-variation" data-id="{{ $variation->id }}" style="display:flex;justify-content:space-between;align-items:center;
+                        padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);">
+                        <div>
+                            <b style="font-size:13.5px;">{{ $variation->name }}</b>
+                            @if($variation->color)
+                                <span style="margin-left:8px;padding:3px 8px;border-radius:8px;background:rgba(88,255,122,.14);
+                                    color:rgba(255,255,255,.85);font-size:11px;font-weight:700;">{{ $variation->color }}</span>
+                            @endif
+                            <div style="color:var(--muted);font-size:12px;margin-top:2px;">SKU: {{ $variation->sku }} • {{ number_format($variation->price, 0, '', ' ') }} грн</div>
+                        </div>
+                        <button type="button" class="remove-variation" data-id="{{ $variation->id }}"
+                            style="padding:6px 10px;border-radius:10px;border:1px solid rgba(255,77,77,.3);
+                            background:rgba(255,77,77,.1);color:rgba(255,77,77,.95);cursor:pointer;font-size:12px;font-weight:700;">
+                            Видалити
+                        </button>
+                        <input type="hidden" name="variations[]" value="{{ $variation->id }}">
+                    </div>
+                    @endforeach
+                </div>
+                <small style="color:var(--muted);display:block;">Оберіть товари, які є варіаціями цього (наприклад, інші кольори)</small>
+                @error('variations')
+                    <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
+                @enderror
+            </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
                 <div>
                     <label style="display:block;margin-bottom:8px;font-weight:700;">Ціна, грн *</label>
@@ -156,24 +204,81 @@
             </div>
 
             <div style="margin-bottom:20px;">
-                <label style="display:block;margin-bottom:8px;font-weight:700;">Характеристики (JSON)</label>
-                <textarea name="specs" rows="6"
-                    style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
-                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;font-family:monospace;resize:vertical;"
-                    placeholder='{"Швидкість пострілу":"300-320 м/с","Ємність магазину":"120 куль","Вага":"2.8 кг"}'>{{ old('specs', is_array($product->specs) ? json_encode($product->specs, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '') }}</textarea>
-                <small style="color:var(--muted);margin-top:4px;display:block;">Формат JSON: {"Назва характеристики": "Значення"}</small>
+                <label style="display:block;margin-bottom:8px;font-weight:700;">Характеристики товару</label>
+                <div id="specsContainer" style="display:grid;gap:8px;margin-bottom:10px;">
+                    @php
+                        $specs = old('specs', $product->specs ?? []);
+                        if(is_string($specs)) {
+                            $specs = json_decode($specs, true) ?: [];
+                        }
+                    @endphp
+                    @if(!empty($specs))
+                        @foreach($specs as $key => $value)
+                        <div class="spec-row" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:start;">
+                            <input type="text" class="spec-key" value="{{ $key }}" placeholder="Назва характеристики"
+                                style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                                background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                            <input type="text" class="spec-value" value="{{ $value }}" placeholder="Значення"
+                                style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                                background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                            <button type="button" class="remove-spec btn small danger">✕</button>
+                        </div>
+                        @endforeach
+                    @endif
+                </div>
+                <button type="button" id="addSpec" class="btn small">+ Додати характеристику</button>
+                <input type="hidden" name="specs" id="specsJson">
+                <small style="color:var(--muted);margin-top:6px;display:block;">Технічні характеристики товару</small>
                 @error('specs')
                     <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
                 @enderror
             </div>
 
             <div style="margin-bottom:20px;">
-                <label style="display:block;margin-bottom:8px;font-weight:700;">Пакети для тюнінгу (JSON)</label>
-                <textarea name="tuning_kits" rows="8"
-                    style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
-                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;font-family:monospace;resize:vertical;"
-                    placeholder='[{"name":"Базовий тюнінг","price":1500,"items":["Заміна пружини","Регулювання хопапу","Змащення"]},{"name":"Розширений","price":3500,"items":["Базовий тюнінг","Заміна циліндра","Встановлення тайт-бору"]}]'>{{ old('tuning_kits', is_array($product->tuning_kits) ? json_encode($product->tuning_kits, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '') }}</textarea>
-                <small style="color:var(--muted);margin-top:4px;display:block;">Формат JSON: масив об'єктів з полями name, price, items (масив)</small>
+                <label style="display:block;margin-bottom:8px;font-weight:700;">Пакети для тюнінгу</label>
+                <div id="tuningKitsContainer" style="display:grid;gap:12px;margin-bottom:10px;">
+                    @php
+                        $tuningKits = old('tuning_kits', $product->tuning_kits ?? []);
+                        if(is_string($tuningKits)) {
+                            $tuningKits = json_decode($tuningKits, true) ?: [];
+                        }
+                    @endphp
+                    @if(!empty($tuningKits))
+                        @foreach($tuningKits as $index => $kit)
+                        <div class="tuning-kit" style="padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.12);
+                            background:rgba(255,255,255,.04);">
+                            <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px;">
+                                <input type="text" class="kit-name" value="{{ $kit['name'] ?? '' }}" placeholder="Назва пакету"
+                                    style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                                <button type="button" class="remove-kit btn small danger">✕ Видалити пакет</button>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px;">
+                                <input type="number" class="kit-price" value="{{ $kit['price'] ?? '' }}" placeholder="Ціна (грн)"
+                                    style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                            </div>
+                            <div style="margin-bottom:6px;font-size:13px;font-weight:700;color:var(--muted);">Роботи:</div>
+                            <div class="kit-items" style="display:grid;gap:6px;margin-bottom:8px;">
+                                @if(!empty($kit['items']))
+                                    @foreach($kit['items'] as $item)
+                                    <div style="display:grid;grid-template-columns:1fr auto;gap:8px;">
+                                        <input type="text" class="kit-item" value="{{ $item }}" placeholder="Назва роботи"
+                                            style="padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.14);
+                                            background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                                        <button type="button" class="remove-kit-item btn small danger" style="padding:6px 10px;">✕</button>
+                                    </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                            <button type="button" class="add-kit-item btn small" style="font-size:12px;">+ Додати роботу</button>
+                        </div>
+                        @endforeach
+                    @endif
+                </div>
+                <button type="button" id="addTuningKit" class="btn small">+ Додати пакет тюнінгу</button>
+                <input type="hidden" name="tuning_kits" id="tuningKitsJson">
+                <small style="color:var(--muted);margin-top:6px;display:block;">Пакети послуг з налаштування та апгрейду</small>
                 @error('tuning_kits')
                     <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
                 @enderror
@@ -307,6 +412,248 @@
                 document.addEventListener('click', (e) => {
                     if(!searchInput.contains(e.target) && !searchResults.contains(e.target)){
                         searchResults.style.display = 'none';
+                    }
+                });
+            })();
+
+            // Specs handling
+            (function(){
+                const specsContainer = document.getElementById('specsContainer');
+                const addSpecBtn = document.getElementById('addSpec');
+                const specsJson = document.getElementById('specsJson');
+
+                function createSpecRow(key = '', value = ''){
+                    const div = document.createElement('div');
+                    div.className = 'spec-row';
+                    div.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:start;';
+                    div.innerHTML = `
+                        <input type="text" class="spec-key" value="${key}" placeholder="Назва характеристики"
+                            style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                            background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                        <input type="text" class="spec-value" value="${value}" placeholder="Значення"
+                            style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                            background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                        <button type="button" class="remove-spec btn small danger">✕</button>
+                    `;
+                    div.querySelector('.remove-spec').addEventListener('click', () => div.remove());
+                    return div;
+                }
+
+                addSpecBtn.addEventListener('click', () => {
+                    specsContainer.appendChild(createSpecRow());
+                });
+
+                document.querySelectorAll('.remove-spec').forEach(btn => {
+                    btn.addEventListener('click', () => btn.closest('.spec-row').remove());
+                });
+
+                // Convert to JSON on form submit
+                document.querySelector('form').addEventListener('submit', (e) => {
+                    const specs = {};
+                    document.querySelectorAll('.spec-row').forEach(row => {
+                        const key = row.querySelector('.spec-key').value.trim();
+                        const value = row.querySelector('.spec-value').value.trim();
+                        if(key && value) specs[key] = value;
+                    });
+                    specsJson.value = Object.keys(specs).length > 0 ? JSON.stringify(specs) : '';
+                });
+            })();
+
+            // Tuning kits handling
+            (function(){
+                const tuningKitsContainer = document.getElementById('tuningKitsContainer');
+                const addTuningKitBtn = document.getElementById('addTuningKit');
+                const tuningKitsJson = document.getElementById('tuningKitsJson');
+
+                function createKitItemRow(value = ''){
+                    const div = document.createElement('div');
+                    div.style.cssText = 'display:grid;grid-template-columns:1fr auto;gap:8px;';
+                    div.innerHTML = `
+                        <input type="text" class="kit-item" value="${value}" placeholder="Назва роботи"
+                            style="padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.14);
+                            background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                        <button type="button" class="remove-kit-item btn small danger" style="padding:6px 10px;">✕</button>
+                    `;
+                    div.querySelector('.remove-kit-item').addEventListener('click', () => div.remove());
+                    return div;
+                }
+
+                function createTuningKit(name = '', price = '', items = []){
+                    const div = document.createElement('div');
+                    div.className = 'tuning-kit';
+                    div.style.cssText = 'padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);';
+
+                    const itemsHtml = items.map(item => `
+                        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;">
+                            <input type="text" class="kit-item" value="${item}" placeholder="Назва роботи"
+                                style="padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.14);
+                                background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                            <button type="button" class="remove-kit-item btn small danger" style="padding:6px 10px;">✕</button>
+                        </div>
+                    `).join('');
+
+                    div.innerHTML = `
+                        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px;">
+                            <input type="text" class="kit-name" value="${name}" placeholder="Назва пакету"
+                                style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                                background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                            <button type="button" class="remove-kit btn small danger">✕ Видалити пакет</button>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px;">
+                            <input type="number" class="kit-price" value="${price}" placeholder="Ціна (грн)"
+                                style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                                background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                        </div>
+                        <div style="margin-bottom:6px;font-size:13px;font-weight:700;color:var(--muted);">Роботи:</div>
+                        <div class="kit-items" style="display:grid;gap:6px;margin-bottom:8px;">
+                            ${itemsHtml}
+                        </div>
+                        <button type="button" class="add-kit-item btn small" style="font-size:12px;">+ Додати роботу</button>
+                    `;
+
+                    div.querySelector('.remove-kit').addEventListener('click', () => div.remove());
+                    div.querySelector('.add-kit-item').addEventListener('click', () => {
+                        div.querySelector('.kit-items').appendChild(createKitItemRow());
+                    });
+                    div.querySelectorAll('.remove-kit-item').forEach(btn => {
+                        btn.addEventListener('click', () => btn.closest('div').remove());
+                    });
+
+                    return div;
+                }
+
+                addTuningKitBtn.addEventListener('click', () => {
+                    tuningKitsContainer.appendChild(createTuningKit());
+                });
+
+                document.querySelectorAll('.remove-kit').forEach(btn => {
+                    btn.addEventListener('click', () => btn.closest('.tuning-kit').remove());
+                });
+
+                document.querySelectorAll('.add-kit-item').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const kit = e.target.closest('.tuning-kit');
+                        kit.querySelector('.kit-items').appendChild(createKitItemRow());
+                    });
+                });
+
+                document.querySelectorAll('.remove-kit-item').forEach(btn => {
+                    btn.addEventListener('click', () => btn.closest('div').remove());
+                });
+
+                // Convert to JSON on form submit
+                document.querySelector('form').addEventListener('submit', (e) => {
+                    const kits = [];
+                    document.querySelectorAll('.tuning-kit').forEach(kitDiv => {
+                        const name = kitDiv.querySelector('.kit-name').value.trim();
+                        const price = parseFloat(kitDiv.querySelector('.kit-price').value) || 0;
+                        const items = [];
+                        kitDiv.querySelectorAll('.kit-item').forEach(input => {
+                            const val = input.value.trim();
+                            if(val) items.push(val);
+                        });
+                        if(name && items.length > 0) {
+                            kits.push({ name, price, items });
+                        }
+                    });
+                    tuningKitsJson.value = kits.length > 0 ? JSON.stringify(kits) : '';
+                });
+            })();
+
+            // Variations handling
+            (function(){
+                const variationSearch = document.getElementById('variationSearch');
+                const variationResults = document.getElementById('variationSearchResults');
+                const selectedVariationsContainer = document.getElementById('selectedVariations');
+                const currentProductId = {{ $product->id }};
+                let searchTimeout = null;
+                let selectedVariationIds = [{{ $product->variations->pluck('id')->implode(',') }}];
+
+                variationSearch.addEventListener('input', (e) => {
+                    clearTimeout(searchTimeout);
+                    const query = e.target.value.trim();
+
+                    if(query.length < 2){
+                        variationResults.style.display = 'none';
+                        return;
+                    }
+
+                    searchTimeout = setTimeout(() => {
+                        fetch(`/admin/products/search?q=${encodeURIComponent(query)}&exclude=${currentProductId}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                if(data.length === 0){
+                                    variationResults.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:13px;">Нічого не знайдено</div>';
+                                    variationResults.style.display = 'block';
+                                    return;
+                                }
+
+                                variationResults.innerHTML = data.map(p => `
+                                    <div class="variation-result-item" data-id="${p.id}" data-name="${p.name}" data-sku="${p.sku}" data-price="${p.price}"
+                                        style="padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer;
+                                        ${selectedVariationIds.includes(p.id) ? 'opacity:0.4;pointer-events:none;' : ''}">
+                                        <b style="font-size:13.5px;">${p.name}</b>
+                                        <div style="color:var(--muted);font-size:12px;margin-top:2px;">${p.price.toLocaleString('uk-UA')} грн • SKU: ${p.sku}</div>
+                                    </div>
+                                `).join('');
+                                variationResults.style.display = 'block';
+
+                                variationResults.querySelectorAll('.variation-result-item').forEach(item => {
+                                    item.addEventListener('click', () => {
+                                        const id = parseInt(item.dataset.id);
+                                        const name = item.dataset.name;
+                                        const sku = item.dataset.sku;
+                                        const price = parseFloat(item.dataset.price);
+                                        addSelectedVariation(id, name, sku, price);
+                                        variationSearch.value = '';
+                                        variationResults.style.display = 'none';
+                                    });
+                                });
+                            })
+                            .catch(err => console.error('Search error:', err));
+                    }, 300);
+                });
+
+                function addSelectedVariation(id, name, sku, price){
+                    if(selectedVariationIds.includes(id)) return;
+                    selectedVariationIds.push(id);
+
+                    const div = document.createElement('div');
+                    div.className = 'selected-variation';
+                    div.dataset.id = id;
+                    div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);';
+                    div.innerHTML = `
+                        <div>
+                            <b style="font-size:13.5px;">${name}</b>
+                            <div style="color:var(--muted);font-size:12px;margin-top:2px;">SKU: ${sku} • ${price.toLocaleString('uk-UA')} грн</div>
+                        </div>
+                        <button type="button" class="remove-variation" data-id="${id}"
+                            style="padding:6px 10px;border-radius:10px;border:1px solid rgba(255,77,77,.3);
+                            background:rgba(255,77,77,.1);color:rgba(255,77,77,.95);cursor:pointer;font-size:12px;font-weight:700;">
+                            Видалити
+                        </button>
+                        <input type="hidden" name="variations[]" value="${id}">
+                    `;
+
+                    div.querySelector('.remove-variation').addEventListener('click', () => {
+                        selectedVariationIds = selectedVariationIds.filter(vid => vid !== id);
+                        div.remove();
+                    });
+
+                    selectedVariationsContainer.appendChild(div);
+                }
+
+                document.querySelectorAll('.remove-variation').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = parseInt(btn.dataset.id);
+                        selectedVariationIds = selectedVariationIds.filter(vid => vid !== id);
+                        btn.closest('.selected-variation').remove();
+                    });
+                });
+
+                document.addEventListener('click', (e) => {
+                    if(!variationSearch.contains(e.target) && !variationResults.contains(e.target)){
+                        variationResults.style.display = 'none';
                     }
                 });
             })();

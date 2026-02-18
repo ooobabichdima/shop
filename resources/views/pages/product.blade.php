@@ -1,6 +1,75 @@
 @extends('layouts.app')
 
 @section('title', $product->name . ' - Strikeball Shop')
+@section('description', Str::limit(strip_tags($product->description ?? 'Купити ' . $product->name . ' в інтернет-магазині Strikeball Shop. ' . ($product->isInStock() ? 'В наявності' : 'Під замовлення') . '. Ціна: ' . number_format($product->price, 0) . ' грн'), 160))
+@section('keywords', $product->name . ', ' . $product->category->name . ', ' . ($product->brand ? $product->brand->name . ', ' : '') . 'страйкбол, airsoft, купити')
+@section('canonical', route('product.show', $product->slug))
+
+@section('og_type', 'product')
+@section('og_title', $product->name . ' - ' . number_format($product->price, 0) . ' грн')
+@section('og_description', Str::limit(strip_tags($product->description ?? 'Купити ' . $product->name), 200))
+@section('og_image', $product->primaryImage ? asset('storage/' . $product->primaryImage->image_path) : asset('images/og-default.jpg'))
+
+@push('structured_data')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ $product->name }}",
+  "image": [
+    @if($product->primaryImage)
+    "{{ asset('storage/' . $product->primaryImage->image_path) }}"
+    @endif
+  ],
+  "description": "{{ strip_tags($product->description ?? '') }}",
+  "sku": "{{ $product->sku }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "{{ $product->brand->name ?? 'Strikeball Shop' }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ route('product.show', $product->slug) }}",
+    "priceCurrency": "UAH",
+    "price": "{{ $product->price }}",
+    @if($product->old_price)
+    "priceValidUntil": "{{ now()->addMonths(1)->format('Y-m-d') }}",
+    @endif
+    "availability": "{{ $product->isInStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
+    "itemCondition": "https://schema.org/NewCondition"
+  }
+  @if($product->rating)
+  ,"aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ $product->rating }}",
+    "reviewCount": "{{ $product->reviews_count ?? 1 }}"
+  }
+  @endif
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Головна",
+    "item": "{{ route('home') }}"
+  },{
+    "@type": "ListItem",
+    "position": 2,
+    "name": "{{ $product->category->name }}",
+    "item": "{{ route('category.show', $product->category->slug) }}"
+  },{
+    "@type": "ListItem",
+    "position": 3,
+    "name": "{{ $product->name }}"
+  }]
+}
+</script>
+@endpush
 
 @section('content')
 @push('styles')
@@ -258,6 +327,59 @@
     <div class="card info" aria-label="Інформація про товар">
         <span class="pill">{{ $product->category->name }}</span>
         <h1>{{ $product->name }}</h1>
+
+        @if($product->variations->isNotEmpty())
+        <div style="margin:16px 0;">
+            <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;">
+                Доступні кольори:
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <a href="{{ route('product.show', $product->slug) }}"
+                    class="variation-card {{ !$product->color ? '' : 'active' }}"
+                    style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;
+                    border:2px solid {{ !$product->color ? 'rgba(88,255,122,.4)' : 'rgba(255,255,255,.14)' }};
+                    background:{{ !$product->color ? 'rgba(88,255,122,.10)' : 'rgba(255,255,255,.05)' }};
+                    transition:.12s ease;text-decoration:none;">
+                    @if($product->primaryImage)
+                        <img src="{{ asset('storage/' . $product->primaryImage->image_path) }}"
+                            alt="{{ $product->name }}"
+                            style="width:32px;height:32px;border-radius:6px;object-fit:cover;">
+                    @endif
+                    <div>
+                        <div style="font-size:12px;font-weight:700;color:var(--text);">
+                            {{ $product->color ?: 'Базовий' }}
+                        </div>
+                        <div style="font-size:11px;color:var(--muted);">
+                            {{ number_format($product->price, 0, '', ' ') }} грн
+                        </div>
+                    </div>
+                </a>
+                @foreach($product->variations as $variation)
+                <a href="{{ route('product.show', $variation->slug) }}"
+                    style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;
+                    border:2px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);
+                    transition:.12s ease;text-decoration:none;">
+                    @if($variation->primaryImage)
+                        <img src="{{ asset('storage/' . $variation->primaryImage->image_path) }}"
+                            alt="{{ $variation->name }}"
+                            style="width:32px;height:32px;border-radius:6px;object-fit:cover;">
+                    @else
+                        <div style="width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.08);
+                            display:grid;place-items:center;font-size:14px;">📦</div>
+                    @endif
+                    <div>
+                        <div style="font-size:12px;font-weight:700;color:var(--text);">
+                            {{ $variation->color ?: $variation->name }}
+                        </div>
+                        <div style="font-size:11px;color:var(--muted);">
+                            {{ number_format($variation->price, 0, '', ' ') }} грн
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
         <div class="rate">
             @if($product->rating)

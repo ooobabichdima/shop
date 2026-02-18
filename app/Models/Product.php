@@ -22,6 +22,8 @@ class Product extends Model
         'specs',
         'tuning_kits',
         'youtube_url',
+        'color',
+        'parent_variation_id',
         'is_active',
         'is_featured',
         'is_new',
@@ -87,6 +89,37 @@ class Product extends Model
             ->wherePivot('type', 'tuning_kit')
             ->withPivot('sort_order')
             ->orderByPivot('sort_order');
+    }
+
+    // Product variations (colors, sizes, etc.)
+    public function variations()
+    {
+        return $this->belongsToMany(Product::class, 'product_variations', 'product_id', 'variation_id')
+            ->withPivot(['variation_type', 'sort_order'])
+            ->withTimestamps()
+            ->orderByPivot('sort_order');
+    }
+
+    // Get all variations including self
+    public function getAllVariations()
+    {
+        $variations = $this->variations;
+
+        // If this product has a parent, get siblings
+        if ($this->parent_variation_id) {
+            $parent = Product::find($this->parent_variation_id);
+            if ($parent) {
+                return $parent->variations;
+            }
+        }
+
+        return $variations;
+    }
+
+    // Parent variation relationship
+    public function parentVariation()
+    {
+        return $this->belongsTo(Product::class, 'parent_variation_id');
     }
 
     public function orderItems()

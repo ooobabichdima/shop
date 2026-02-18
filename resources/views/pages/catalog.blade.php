@@ -1,6 +1,41 @@
 @extends('layouts.app')
 
-@section('title', $category->name . ' - Strikeball Shop')
+@section('title', $category->name . ' - Каталог | Strikeball Shop')
+@section('description', $category->description ?? 'Каталог ' . $category->name . ' - купити страйкбольне обладнання в інтернет-магазині Strikeball Shop. Широкий вибір, доставка по Україні.')
+@section('keywords', $category->name . ', страйкбол, airsoft, купити ' . $category->name . ', інтернет-магазин')
+@section('canonical', route('category.show', $category->slug))
+
+@section('og_title', $category->name . ' - Каталог')
+@section('og_description', $category->description ?? 'Каталог ' . $category->name)
+
+@push('structured_data')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "{{ $category->name }}",
+  "description": "{{ $category->description ?? '' }}",
+  "url": "{{ route('category.show', $category->slug) }}"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Головна",
+    "item": "{{ route('home') }}"
+  },{
+    "@type": "ListItem",
+    "position": 2,
+    "name": "{{ $category->name }}"
+  }]
+}
+</script>
+@endpush
 
 @section('content')
 @push('styles')

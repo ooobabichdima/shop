@@ -1,6 +1,44 @@
 @extends('layouts.app')
 
-@section('title', 'Головна - Strikeball Shop')
+@section('title', 'Strikeball Shop — Інтернет-магазин страйкбольного обладнання')
+@section('description', 'Купити страйкбольне обладнання в Україні: приводи AEG, магазини, кулі, захист, тактичне спорядження. Великий вибір, вигідні ціни, доставка по Україні.')
+@section('keywords', 'страйкбол, airsoft, привод AEG, магазини страйкбол, кулі airsoft, захист, тактичне спорядження, інтернет-магазин')
+@section('canonical', route('home'))
+
+@push('structured_data')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Strikeball Shop",
+  "url": "{{ url('/') }}",
+  "logo": "{{ asset('images/logo.png') }}",
+  "description": "Інтернет-магазин страйкбольного обладнання",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "UA"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "Customer Service"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Strikeball Shop",
+  "url": "{{ url('/') }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ url('/') }}?search={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+@endpush
 
 @section('content')
 @push('styles')

@@ -31,6 +31,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/category/{slug}', [CatalogController::class, 'show'])->name('category.show');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
+// Feeds
+Route::get('/feed/google-shopping.xml', [\App\Http\Controllers\FeedController::class, 'googleShopping'])->name('feed.google');
+Route::get('/feed/facebook-catalog.xml', [\App\Http\Controllers\FeedController::class, 'facebookCatalog'])->name('feed.facebook');
+
 // Cart
 Route::get('/cart', [CartController::class, 'index'])->name('cart');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');

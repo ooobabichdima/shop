@@ -5,8 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0b0f14" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- SEO Meta Tags -->
     <title>@yield('title', 'Strikeball Shop — Інтернет-магазин страйкбольного обладнання')</title>
     <meta name="description" content="@yield('description', 'Каталог страйкбольного обладнання: приводи, магазини, кулі, захист. Доставка по Україні, гарантія, допомога з підбором.')" />
+    <meta name="keywords" content="@yield('keywords', 'страйкбол, airsoft, привод, aeg, магазин, кулі, захист, тактичне спорядження')" />
+    <link rel="canonical" href="@yield('canonical', url()->current())" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="@yield('og_type', 'website')" />
+    <meta property="og:url" content="@yield('og_url', url()->current())" />
+    <meta property="og:title" content="@yield('og_title', '@yield('title', 'Strikeball Shop — Інтернет-магазин страйкбольного обладнання')')" />
+    <meta property="og:description" content="@yield('og_description', '@yield('description', 'Каталог страйкбольного обладнання')')" />
+    <meta property="og:image" content="@yield('og_image', asset('images/og-default.jpg'))" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="@yield('twitter_url', url()->current())" />
+    <meta property="twitter:title" content="@yield('twitter_title', '@yield('title')')" />
+    <meta property="twitter:description" content="@yield('twitter_description', '@yield('description')')" />
+    <meta property="twitter:image" content="@yield('twitter_image', '@yield('og_image', asset('images/og-default.jpg'))')" />
+
+    @stack('structured_data')
 
     <style>
         :root{

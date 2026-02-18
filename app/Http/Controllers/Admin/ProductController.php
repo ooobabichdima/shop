@@ -47,6 +47,7 @@ class ProductController extends Controller
             'sku' => 'required|string|max:100|unique:products,sku',
             'description' => 'nullable|string',
             'youtube_url' => 'nullable|url',
+            'color' => 'nullable|string|max:100',
             'price' => 'required|numeric|min:0',
             'old_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
@@ -119,6 +120,7 @@ class ProductController extends Controller
             'sku' => 'required|string|max:100|unique:products,sku,' . $product->id,
             'description' => 'nullable|string',
             'youtube_url' => 'nullable|url',
+            'color' => 'nullable|string|max:100',
             'price' => 'required|numeric|min:0',
             'old_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
@@ -129,6 +131,8 @@ class ProductController extends Controller
             'is_new' => 'boolean',
             'recommended_products' => 'nullable|array',
             'recommended_products.*' => 'exists:products,id',
+            'variations' => 'nullable|array',
+            'variations.*' => 'exists:products,id',
         ]);
 
         // Update slug if name changed
@@ -160,7 +164,8 @@ class ProductController extends Controller
         }
 
         $recommendedProducts = $validated['recommended_products'] ?? [];
-        unset($validated['recommended_products']);
+        $variations = $validated['variations'] ?? [];
+        unset($validated['recommended_products'], $validated['variations']);
 
         $product->update($validated);
 
@@ -176,6 +181,20 @@ class ProductController extends Controller
             $product->recommended()->sync($syncData);
         } else {
             $product->recommended()->detach();
+        }
+
+        // Sync variations
+        if (!empty($variations)) {
+            $syncData = [];
+            foreach ($variations as $index => $variationId) {
+                $syncData[$variationId] = [
+                    'variation_type' => 'color',
+                    'sort_order' => $index
+                ];
+            }
+            $product->variations()->sync($syncData);
+        } else {
+            $product->variations()->detach();
         }
 
         return back()->with('success', 'Товар оновлено успішно');

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Додати товар - Адмін')
 
@@ -154,24 +154,24 @@
             </div>
 
             <div style="margin-bottom:20px;">
-                <label style="display:block;margin-bottom:8px;font-weight:700;">Характеристики (JSON)</label>
-                <textarea name="specs" rows="6"
-                    style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
-                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;font-family:monospace;resize:vertical;"
-                    placeholder='{"Швидкість пострілу":"300-320 м/с","Ємність магазину":"120 куль","Вага":"2.8 кг"}'>{{ old('specs') }}</textarea>
-                <small style="color:var(--muted);margin-top:4px;display:block;">Формат JSON: {"Назва характеристики": "Значення"}</small>
+                <label style="display:block;margin-bottom:8px;font-weight:700;">Характеристики товару</label>
+                <div id="specsContainer" style="display:grid;gap:8px;margin-bottom:10px;">
+                </div>
+                <button type="button" id="addSpec" class="btn small">+ Додати характеристику</button>
+                <input type="hidden" name="specs" id="specsJson">
+                <small style="color:var(--muted);margin-top:6px;display:block;">Технічні характеристики товару</small>
                 @error('specs')
                     <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
                 @enderror
             </div>
 
             <div style="margin-bottom:20px;">
-                <label style="display:block;margin-bottom:8px;font-weight:700;">Пакети для тюнінгу (JSON)</label>
-                <textarea name="tuning_kits" rows="8"
-                    style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
-                    background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;font-family:monospace;resize:vertical;"
-                    placeholder='[{"name":"Базовий тюнінг","price":1500,"items":["Заміна пружини","Регулювання хопапу","Змащення"]},{"name":"Розширений","price":3500,"items":["Базовий тюнінг","Заміна циліндра","Встановлення тайт-бору"]}]'>{{ old('tuning_kits') }}</textarea>
-                <small style="color:var(--muted);margin-top:4px;display:block;">Формат JSON: масив об'єктів з полями name, price, items (масив)</small>
+                <label style="display:block;margin-bottom:8px;font-weight:700;">Пакети для тюнінгу</label>
+                <div id="tuningKitsContainer" style="display:grid;gap:12px;margin-bottom:10px;">
+                </div>
+                <button type="button" id="addTuningKit" class="btn small">+ Додати пакет тюнінгу</button>
+                <input type="hidden" name="tuning_kits" id="tuningKitsJson">
+                <small style="color:var(--muted);margin-top:6px;display:block;">Пакети послуг з налаштування та апгрейду</small>
                 @error('tuning_kits')
                     <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
                 @enderror
@@ -278,6 +278,117 @@
                     if(!searchInput.contains(e.target) && !searchResults.contains(e.target)){
                         searchResults.style.display = 'none';
                     }
+                });
+            })();
+
+            // Specs handling
+            (function(){
+                const specsContainer = document.getElementById('specsContainer');
+                const addSpecBtn = document.getElementById('addSpec');
+                const specsJson = document.getElementById('specsJson');
+
+                function createSpecRow(key = '', value = ''){
+                    const div = document.createElement('div');
+                    div.className = 'spec-row';
+                    div.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:start;';
+                    div.innerHTML = `
+                        <input type="text" class="spec-key" value="${key}" placeholder="Назва характеристики"
+                            style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                            background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                        <input type="text" class="spec-value" value="${value}" placeholder="Значення"
+                            style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                            background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                        <button type="button" class="remove-spec btn small danger">✕</button>
+                    `;
+                    div.querySelector('.remove-spec').addEventListener('click', () => div.remove());
+                    return div;
+                }
+
+                addSpecBtn.addEventListener('click', () => {
+                    specsContainer.appendChild(createSpecRow());
+                });
+
+                // Convert to JSON on form submit
+                document.querySelector('form').addEventListener('submit', (e) => {
+                    const specs = {};
+                    document.querySelectorAll('.spec-row').forEach(row => {
+                        const key = row.querySelector('.spec-key').value.trim();
+                        const value = row.querySelector('.spec-value').value.trim();
+                        if(key && value) specs[key] = value;
+                    });
+                    specsJson.value = Object.keys(specs).length > 0 ? JSON.stringify(specs) : '';
+                });
+            })();
+
+            // Tuning kits handling
+            (function(){
+                const tuningKitsContainer = document.getElementById('tuningKitsContainer');
+                const addTuningKitBtn = document.getElementById('addTuningKit');
+                const tuningKitsJson = document.getElementById('tuningKitsJson');
+
+                function createKitItemRow(value = ''){
+                    const div = document.createElement('div');
+                    div.style.cssText = 'display:grid;grid-template-columns:1fr auto;gap:8px;';
+                    div.innerHTML = `
+                        <input type="text" class="kit-item" value="${value}" placeholder="Назва роботи"
+                            style="padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.14);
+                            background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                        <button type="button" class="remove-kit-item btn small danger" style="padding:6px 10px;">✕</button>
+                    `;
+                    div.querySelector('.remove-kit-item').addEventListener('click', () => div.remove());
+                    return div;
+                }
+
+                function createTuningKit(name = '', price = '', items = []){
+                    const div = document.createElement('div');
+                    div.className = 'tuning-kit';
+                    div.style.cssText = 'padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);';
+
+                    div.innerHTML = `
+                        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px;">
+                            <input type="text" class="kit-name" value="${name}" placeholder="Назва пакету"
+                                style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                                background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                            <button type="button" class="remove-kit btn small danger">✕ Видалити пакет</button>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px;">
+                            <input type="number" class="kit-price" value="${price}" placeholder="Ціна (грн)"
+                                style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+                                background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:13px;">
+                        </div>
+                        <div style="margin-bottom:6px;font-size:13px;font-weight:700;color:var(--muted);">Роботи:</div>
+                        <div class="kit-items" style="display:grid;gap:6px;margin-bottom:8px;"></div>
+                        <button type="button" class="add-kit-item btn small" style="font-size:12px;">+ Додати роботу</button>
+                    `;
+
+                    div.querySelector('.remove-kit').addEventListener('click', () => div.remove());
+                    div.querySelector('.add-kit-item').addEventListener('click', () => {
+                        div.querySelector('.kit-items').appendChild(createKitItemRow());
+                    });
+
+                    return div;
+                }
+
+                addTuningKitBtn.addEventListener('click', () => {
+                    tuningKitsContainer.appendChild(createTuningKit());
+                });
+
+                // Convert to JSON on form submit
+                document.querySelector('form').addEventListener('submit', (e) => {
+                    const kits = [];
+                    document.querySelectorAll('.tuning-kit').forEach(kitDiv => {
+                        const name = kitDiv.querySelector('.kit-name').value.trim();
+                        const price = parseFloat(kitDiv.querySelector('.kit-price').value) || 0;
+                        const items = [];
+                        kitDiv.querySelectorAll('.kit-item').forEach(input => {
+                            const val = input.value.trim();
+                            if(val) items.push(val);
+                        });
+                        if(name && items.length > 0) {
+                            kits.push({ name, price, items });
+                        }
+                    });
+                    tuningKitsJson.value = kits.length > 0 ? JSON.stringify(kits) : '';
                 });
             })();
             </script>
