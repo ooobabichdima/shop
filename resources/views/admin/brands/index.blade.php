@@ -39,28 +39,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($brands as $category)
+                        @foreach($brands as $brand)
                         <tr style="border-bottom:1px solid rgba(255,255,255,.08);">
-                            <td style="padding:10px 12px;">{{ $category->id }}</td>
-                            <td style="padding:10px 12px;font-weight:700;">{{ $category->name }}</td>
-                            <td style="padding:10px 12px;color:var(--muted);">{{ $category->slug }}</td>
-                            <td style="padding:10px 12px;text-align:center;">{{ $category->sort_order }}</td>
+                            <td style="padding:10px 12px;">{{ $brand->id }}</td>
+                            <td style="padding:10px 12px;font-weight:700;">{{ $brand->name }}</td>
+                            <td style="padding:10px 12px;color:var(--muted);">{{ $brand->slug }}</td>
+                            <td style="padding:10px 12px;text-align:center;">{{ $brand->sort_order }}</td>
                             <td style="padding:10px 12px;text-align:center;">
                                 <span style="background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.3);padding:4px 8px;border-radius:8px;font-size:12px;">
-                                    {{ $category->products->count() }}
+                                    {{ $brand->products->count() }}
                                 </span>
                             </td>
                             <td style="padding:10px 12px;text-align:center;">
-                                @if($category->is_active)
-                                    <span style="color:rgba(88,255,122,.95);">●</span> Активна
+                                @if($brand->is_active)
+                                    <span style="color:rgba(88,255,122,.95);">●</span> Активний
                                 @else
-                                    <span style="color:rgba(255,77,77,.95);">●</span> Неактивна
+                                    <span style="color:rgba(255,77,77,.95);">●</span> Неактивний
                                 @endif
                             </td>
                             <td style="padding:10px 12px;text-align:center;">
                                 <div style="display:flex;gap:6px;justify-content:center;">
-                                    <a href="{{ route('admin.brands.edit', $category) }}" class="btn small">Редагувати</a>
-                                    <form method="POST" action="{{ route('admin.brands.destroy', $category) }}" style="display:inline;" onsubmit="return confirm('Ви впевнені?')">
+                                    <a href="{{ route('admin.brands.edit', $brand) }}" class="btn small">Редагувати</a>
+                                    <form method="POST" action="{{ route('admin.brands.destroy', $brand) }}" style="display:inline;" onsubmit="return confirm('Ви впевнені?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn small" style="background:rgba(255,77,77,.1);border-color:rgba(255,77,77,.3);color:rgba(255,77,77,.95);">Видалити</button>

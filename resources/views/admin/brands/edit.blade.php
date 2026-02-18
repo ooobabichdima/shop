@@ -5,7 +5,7 @@
 @section('content')
 <div style="padding:20px 0;">
     <div style="margin-bottom:30px;">
-        <a href="{{ route('admin.brands.index') }}" class="btn" style="margin-bottom:12px;">← Назад до категорій</a>
+        <a href="{{ route('admin.brands.index') }}" class="btn" style="margin-bottom:12px;">← Назад до брендів</a>
         <h1 style="margin:0;">Редагувати бренд</h1>
     </div>
 
@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('admin.brands.update', $category) }}">
+    <form method="POST" action="{{ route('admin.brands.update', $brand) }}">
         @csrf
         @method('PUT')
 
@@ -30,13 +30,13 @@
             <div style="display:grid;gap:16px;">
                 <div>
                     <label style="display:block;margin-bottom:8px;font-weight:700;">Назва *</label>
-                    <input type="text" name="name" value="{{ old('name', $category->name) }}" required
+                    <input type="text" name="name" value="{{ old('name', $brand->name) }}" required
                         style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">
                 </div>
 
                 <div>
                     <label style="display:block;margin-bottom:8px;font-weight:700;">Slug</label>
-                    <input type="text" value="{{ $category->slug }}" disabled
+                    <input type="text" value="{{ $brand->slug }}" disabled
                         style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--muted);">
                     <small style="color:var(--muted);margin-top:4px;display:block;">Генерується автоматично з назви</small>
                 </div>
@@ -44,23 +44,23 @@
                 <div>
                     <label style="display:block;margin-bottom:8px;font-weight:700;">Опис</label>
                     <textarea name="description" rows="4"
-                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">{{ old('description', $category->description) }}</textarea>
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">{{ old('description', $brand->description) }}</textarea>
                     <small style="color:var(--muted);margin-top:4px;display:block;">Опис бренду для SEO</small>
                 </div>
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                     <div>
                         <label style="display:block;margin-bottom:8px;font-weight:700;">Порядок сортування</label>
-                        <input type="number" name="sort_order" value="{{ old('sort_order', $category->sort_order) }}"
+                        <input type="number" name="sort_order" value="{{ old('sort_order', $brand->sort_order) }}"
                             style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">
                         <small style="color:var(--muted);margin-top:4px;display:block;">Чим менше число, тим вище в списку</small>
                     </div>
 
                     <div style="display:flex;align-items:center;padding-top:28px;">
                         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-                            <input type="checkbox" name="is_active" value="1" {{ old('is_active', $category->is_active) ? 'checked' : '' }}
+                            <input type="checkbox" name="is_active" value="1" {{ old('is_active', $brand->is_active) ? 'checked' : '' }}
                                 style="width:18px;height:18px;accent-color:var(--accent);">
-                            <span style="font-weight:700;">Активна</span>
+                            <span style="font-weight:700;">Активний</span>
                         </label>
                     </div>
                 </div>
@@ -68,7 +68,7 @@
                 <div style="padding:12px;border-radius:14px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.3);">
                     <div style="color:rgba(56,189,248,.95);font-weight:700;margin-bottom:4px;">Статистика</div>
                     <div style="color:rgba(255,255,255,.85);">
-                        Товарів у бренду: <b>{{ $category->products->count() }}</b>
+                        Товарів у бренду: <b>{{ $brand->products->count() }}</b>
                     </div>
                 </div>
             </div>

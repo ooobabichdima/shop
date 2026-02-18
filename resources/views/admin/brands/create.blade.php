@@ -5,7 +5,7 @@
 @section('content')
 <div style="padding:20px 0;">
     <div style="margin-bottom:30px;">
-        <a href="{{ route('admin.brands.index') }}" class="btn" style="margin-bottom:12px;">← Назад до категорій</a>
+        <a href="{{ route('admin.brands.index') }}" class="btn" style="margin-bottom:12px;">← Назад до брендів</a>
         <h1 style="margin:0;">Додати бренд</h1>
     </div>
 
@@ -52,7 +52,7 @@
                         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
                             <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}
                                 style="width:18px;height:18px;accent-color:var(--accent);">
-                            <span style="font-weight:700;">Активна</span>
+                            <span style="font-weight:700;">Активний</span>
                         </label>
                     </div>
                 </div>

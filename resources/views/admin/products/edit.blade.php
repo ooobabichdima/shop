@@ -659,6 +659,51 @@
             })();
             </script>
 
+            <div style="margin-bottom:20px;padding:20px;border-radius:16px;border:1px solid rgba(56,189,248,.25);background:rgba(56,189,248,.06);">
+                <h3 style="margin:0 0 16px;display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:20px;">🔍</span>
+                    <span>SEO налаштування</span>
+                </h3>
+
+                <div style="display:grid;gap:16px;">
+                    <div>
+                        <label style="display:block;margin-bottom:8px;font-weight:700;">Meta заголовок</label>
+                        <input type="text" name="meta_title" value="{{ old('meta_title', $product->meta_title ?? '') }}"
+                            style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+                            background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:15px;"
+                            placeholder="Якщо порожнє, буде використано назву товару">
+                        <small style="color:var(--muted);margin-top:4px;display:block;">Рекомендовано: 50-60 символів</small>
+                        @error('meta_title')
+                            <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label style="display:block;margin-bottom:8px;font-weight:700;">Meta опис</label>
+                        <textarea name="meta_description" rows="3"
+                            style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+                            background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:15px;resize:vertical;"
+                            placeholder="Якщо порожнє, буде використано короткий опис товару">{{ old('meta_description', $product->meta_description ?? '') }}</textarea>
+                        <small style="color:var(--muted);margin-top:4px;display:block;">Рекомендовано: 150-160 символів</small>
+                        @error('meta_description')
+                            <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label style="display:block;margin-bottom:8px;font-weight:700;">Ключові слова</label>
+                        <input type="text" name="meta_keywords" value="{{ old('meta_keywords', $product->meta_keywords ?? '') }}"
+                            style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+                            background:rgba(0,0,0,.18);color:var(--text);outline:none;font-size:15px;"
+                            placeholder="airsoft, страйкбол, автомат, привод">
+                        <small style="color:var(--muted);margin-top:4px;display:block;">Ключові слова через кому</small>
+                        @error('meta_keywords')
+                            <div style="color:var(--danger);font-size:13px;margin-top:6px;">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
             <div style="display:flex;gap:12px;">
                 <button type="submit" class="btn primary">
                     💾 Зберегти зміни

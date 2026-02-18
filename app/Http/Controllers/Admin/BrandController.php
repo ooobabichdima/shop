@@ -11,13 +11,13 @@ class BrandController extends Controller
 {
     public function index()
     {
-        $categories = Brand::orderBy('sort_order')->orderBy('name')->paginate(20);
-        return view('admin.categories.index', compact('categories'));
+        $brands = Brand::orderBy('sort_order')->orderBy('name')->paginate(20);
+        return view('admin.brands.index', compact('brands'));
     }
 
     public function create()
     {
-        return view('admin.categories.create');
+        return view('admin.brands.create');
     }
 
     public function store(Request $request)
@@ -43,15 +43,15 @@ class BrandController extends Controller
             'is_active' => $request->has('is_active'),
         ]);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Бренд створено успішно!');
+        return redirect()->route('admin.brands.index')->with('success', 'Бренд створено успішно!');
     }
 
-    public function edit(Brand $category)
+    public function edit(Brand $brand)
     {
-        return view('admin.categories.edit', compact('category'));
+        return view('admin.brands.edit', compact('brand'));
     }
 
-    public function update(Request $request, Brand $category)
+    public function update(Request $request, Brand $brand)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -59,16 +59,16 @@ class BrandController extends Controller
         ]);
 
         $slug = Str::slug($request->name);
-        if ($slug !== $category->slug) {
+        if ($slug !== $brand->slug) {
             $originalSlug = $slug;
             $count = 1;
-            while (Brand::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
+            while (Brand::where('slug', $slug)->where('id', '!=', $brand->id)->exists()) {
                 $slug = $originalSlug . '-' . $count;
                 $count++;
             }
         }
 
-        $category->update([
+        $brand->update([
             'name' => $request->name,
             'slug' => $slug,
             'description' => $request->description,
@@ -76,18 +76,18 @@ class BrandController extends Controller
             'is_active' => $request->has('is_active'),
         ]);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Бренд оновлено успішно!');
+        return redirect()->route('admin.brands.index')->with('success', 'Бренд оновлено успішно!');
     }
 
-    public function destroy(Brand $category)
+    public function destroy(Brand $brand)
     {
-        $productsCount = $category->products()->count();
+        $productsCount = $brand->products()->count();
 
         if ($productsCount > 0) {
-            return back()->with('error', "Неможливо видалити бренд. У ній є {$productsCount} товарів.");
+            return back()->with('error', "Неможливо видалити бренд. У нього є {$productsCount} товарів.");
         }
 
-        $category->delete();
-        return redirect()->route('admin.categories.index')->with('success', 'Бренд видалено успішно!');
+        $brand->delete();
+        return redirect()->route('admin.brands.index')->with('success', 'Бренд видалено успішно!');
     }
 }
