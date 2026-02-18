@@ -35,6 +35,22 @@
                 </div>
 
                 <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Батьківська категорія</label>
+                    <select name="parent_id"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">
+                        <option value="">Без батьківської (головна категорія)</option>
+                        @foreach(\App\Models\Category::where('id', '!=', $category->id)->orderBy('name')->get() as $cat)
+                            @if(!$cat->parent_id) {{-- Show only root categories as parents --}}
+                            <option value="{{ $cat->id }}" {{ old('parent_id', $category->parent_id) == $cat->id ? 'selected' : '' }}>
+                                {{ $cat->name }}
+                            </option>
+                            @endif
+                        @endforeach
+                    </select>
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Оберіть, якщо це підкатегорія</small>
+                </div>
+
+                <div>
                     <label style="display:block;margin-bottom:8px;font-weight:700;">Slug</label>
                     <input type="text" value="{{ $category->slug }}" disabled
                         style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--muted);">
@@ -70,6 +86,37 @@
                     <div style="color:rgba(255,255,255,.85);">
                         Товарів у категорії: <b>{{ $category->products->count() }}</b>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="padding:20px;margin-bottom:16px;">
+            <h2 style="margin:0 0 12px;">🔍 SEO налаштування</h2>
+            <p style="margin:0 0 16px;color:var(--muted);font-size:14px;">Мета-теги для пошукових систем та соціальних мереж</p>
+
+            <div style="display:grid;gap:16px;">
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Meta Title</label>
+                    <input type="text" name="meta_title" value="{{ old('meta_title', $category->meta_title) }}"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);"
+                        placeholder="{{ $category->name }} - Каталог | Strikeball Shop">
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Заголовок сторінки в пошукових системах (50-60 символів)</small>
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Meta Description</label>
+                    <textarea name="meta_description" rows="3"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);"
+                        placeholder="Каталог {{ $category->name }} - купити в інтернет-магазині Strikeball Shop...">{{ old('meta_description', $category->meta_description) }}</textarea>
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Опис сторінки в пошукових системах (150-160 символів)</small>
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Meta Keywords</label>
+                    <input type="text" name="meta_keywords" value="{{ old('meta_keywords', $category->meta_keywords) }}"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);"
+                        placeholder="страйкбол, airsoft, {{ strtolower($category->name) }}">
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Ключові слова через кому</small>
                 </div>
             </div>
         </div>

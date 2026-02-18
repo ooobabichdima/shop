@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\SeoPage;
 
 class HomeController extends Controller
 {
@@ -26,6 +27,8 @@ class HomeController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return view('pages.home', compact('featuredProducts', 'newProducts', 'categories'));
+        $seo = SeoPage::getByKey('home');
+
+        return view('pages.home', compact('featuredProducts', 'newProducts', 'categories', 'seo'));
     }
 }

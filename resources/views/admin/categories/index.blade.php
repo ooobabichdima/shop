@@ -42,7 +42,17 @@
                         @foreach($categories as $category)
                         <tr style="border-bottom:1px solid rgba(255,255,255,.08);">
                             <td style="padding:10px 12px;">{{ $category->id }}</td>
-                            <td style="padding:10px 12px;font-weight:700;">{{ $category->name }}</td>
+                            <td style="padding:10px 12px;font-weight:700;">
+                                @if($category->parent_id)
+                                    <span style="color:var(--muted);margin-right:8px;">└─</span>
+                                @endif
+                                {{ $category->name }}
+                                @if($category->parent)
+                                    <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:6px;">
+                                        ({{ $category->parent->name }})
+                                    </span>
+                                @endif
+                            </td>
                             <td style="padding:10px 12px;color:var(--muted);">{{ $category->slug }}</td>
                             <td style="padding:10px 12px;text-align:center;">{{ $category->sort_order }}</td>
                             <td style="padding:10px 12px;text-align:center;">

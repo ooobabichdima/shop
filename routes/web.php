@@ -99,6 +99,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/import', [PriceImportController::class, 'index'])->name('import.index');
     Route::post('/import', [PriceImportController::class, 'import'])->name('import.process');
 
+    // SEO Pages
+    Route::get('/seo', [\App\Http\Controllers\Admin\SeoPageController::class, 'index'])->name('seo.index');
+    Route::get('/seo/{seoPage}/edit', [\App\Http\Controllers\Admin\SeoPageController::class, 'edit'])->name('seo.edit');
+    Route::put('/seo/{seoPage}', [\App\Http\Controllers\Admin\SeoPageController::class, 'update'])->name('seo.update');
+
     // Leads
     Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
     Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show');

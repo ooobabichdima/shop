@@ -34,6 +34,20 @@
                 </div>
 
                 <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Батьківська категорія</label>
+                    <select name="parent_id"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">
+                        <option value="">Без батьківської (головна категорія)</option>
+                        @foreach(\App\Models\Category::whereNull('parent_id')->orderBy('name')->get() as $cat)
+                        <option value="{{ $cat->id }}" {{ old('parent_id') == $cat->id ? 'selected' : '' }}>
+                            {{ $cat->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Оберіть, якщо це підкатегорія</small>
+                </div>
+
+                <div>
                     <label style="display:block;margin-bottom:8px;font-weight:700;">Опис</label>
                     <textarea name="description" rows="4"
                         style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">{{ old('description') }}</textarea>
@@ -55,6 +69,37 @@
                             <span style="font-weight:700;">Активна</span>
                         </label>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="padding:20px;margin-bottom:16px;">
+            <h2 style="margin:0 0 12px;">🔍 SEO налаштування</h2>
+            <p style="margin:0 0 16px;color:var(--muted);font-size:14px;">Мета-теги для пошукових систем (опціонально)</p>
+
+            <div style="display:grid;gap:16px;">
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Meta Title</label>
+                    <input type="text" name="meta_title" value="{{ old('meta_title') }}"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);"
+                        placeholder="Назва категорії - Каталог | Strikeball Shop">
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Заголовок в пошукових системах (50-60 символів)</small>
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Meta Description</label>
+                    <textarea name="meta_description" rows="3"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);"
+                        placeholder="Купити в інтернет-магазині Strikeball Shop...">{{ old('meta_description') }}</textarea>
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Опис в пошукових системах (150-160 символів)</small>
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Meta Keywords</label>
+                    <input type="text" name="meta_keywords" value="{{ old('meta_keywords') }}"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);"
+                        placeholder="страйкбол, airsoft, ключові слова">
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Ключові слова через кому</small>
                 </div>
             </div>
         </div>

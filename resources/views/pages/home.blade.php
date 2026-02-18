@@ -1,9 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Strikeball Shop — Інтернет-магазин страйкбольного обладнання')
-@section('description', 'Купити страйкбольне обладнання в Україні: приводи AEG, магазини, кулі, захист, тактичне спорядження. Великий вибір, вигідні ціни, доставка по Україні.')
-@section('keywords', 'страйкбол, airsoft, привод AEG, магазини страйкбол, кулі airsoft, захист, тактичне спорядження, інтернет-магазин')
+@section('title', $seo?->meta_title ?: 'Strikeball Shop — Інтернет-магазин страйкбольного обладнання')
+@section('description', $seo?->meta_description ?: 'Купити страйкбольне обладнання в Україні: приводи AEG, магазини, кулі, захист, тактичне спорядження. Великий вибір, вигідні ціни, доставка по Україні.')
+@section('keywords', $seo?->meta_keywords ?: 'страйкбол, airsoft, привод AEG, магазини страйкбол, кулі airsoft, захист, тактичне спорядження, інтернет-магазин')
 @section('canonical', route('home'))
+
+@if($seo?->og_title)
+@section('og_title', $seo->og_title)
+@endif
+
+@if($seo?->og_description)
+@section('og_description', $seo->og_description)
+@endif
+
+@if($seo?->og_image)
+@section('og_image', asset($seo->og_image))
+@endif
 
 @push('structured_data')
 <script type="application/ld+json">
