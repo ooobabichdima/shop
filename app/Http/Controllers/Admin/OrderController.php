@@ -33,6 +33,84 @@ class OrderController extends Controller
         return view('admin.orders.index', compact('orders'));
     }
 
+    public function create()
+    {
+        return view('admin.orders.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'shipping_provider' => 'required|string|max:255',
+            'shipping_city' => 'required|string|max:255',
+            'shipping_ref' => 'nullable|string|max:255',
+            'shipping_address' => 'nullable|string|max:500',
+            'comment' => 'nullable|string',
+            'products' => 'required|array|min:1',
+            'products.*.id' => 'required|exists:products,id',
+            'products.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        // Создаем заказ
+        $order = Order::create([
+            'number' => Order::generateOrderNumber(),
+            'customer_name' => $validated['customer_name'],
+            'phone' => $validated['phone'],
+            'email' => $validated['email'] ?? null,
+            'shipping_provider' => $validated['shipping_provider'],
+            'shipping_city' => $validated['shipping_city'],
+            'shipping_ref' => $validated['shipping_ref'] ?? null,
+            'shipping_address' => $validated['shipping_address'] ?? null,
+            'comment' => $validated['comment'] ?? null,
+            'subtotal' => 0,
+            'discount' => 0,
+            'shipping_cost' => 0,
+            'total' => 0,
+            'status' => 'new',
+        ]);
+
+        // Добавляем товары
+        $subtotal = 0;
+        foreach ($validated['products'] as $productData) {
+            $product = \App\Models\Product::find($productData['id']);
+            $quantity = $productData['quantity'];
+            $price = $product->price;
+
+            $order->items()->create([
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'product_sku' => $product->sku,
+                'quantity' => $quantity,
+                'price' => $price,
+                'total' => $price * $quantity,
+            ]);
+
+            $subtotal += $price * $quantity;
+        }
+
+        // Обновляем сумму заказа
+        $order->update([
+            'subtotal' => $subtotal,
+            'total' => $subtotal,
+        ]);
+
+        // Записываем в аудит
+        AuditLog::create([
+            'auditable_type' => Order::class,
+            'auditable_id' => $order->id,
+            'user_id' => auth()->id(),
+            'event' => 'created',
+            'old_values' => null,
+            'new_values' => 'Manual order creation',
+            'ip_address' => $request->ip(),
+        ]);
+
+        return redirect()->route('admin.orders.show', $order)->with('success', 'Замовлення створено успішно');
+    }
+
     public function show(Order $order)
     {
         $order->load(['items.product', 'user', 'payments', 'auditLogs.user']);

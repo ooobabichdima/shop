@@ -4,7 +4,12 @@
 
 @section('content')
 <div style="padding:20px 0;">
-    <h1 style="margin-bottom:30px;">Замовлення</h1>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:16px;">
+        <h1 style="margin:0;">Замовлення</h1>
+        <a href="{{ route('admin.orders.create') }}" class="btn primary">
+            + Створити замовлення
+        </a>
+    </div>
 
     <div class="card" style="padding:20px;">
         @if($orders->count() > 0)
