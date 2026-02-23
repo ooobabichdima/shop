@@ -11,6 +11,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,20 @@ Route::get('/debug', function () {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/category/{slug}', [CatalogController::class, 'show'])->name('category.show');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
+
+// Info Pages
+Route::get('/catalog', [PageController::class, 'catalog'])->name('catalog');
+Route::get('/contacts', [PageController::class, 'contacts'])->name('contacts');
+Route::post('/contacts', [PageController::class, 'submitContact'])->name('contact.submit');
+Route::get('/delivery', [PageController::class, 'delivery'])->name('delivery');
+Route::get('/payment', [PageController::class, 'payment'])->name('payment');
+Route::get('/warranty', [PageController::class, 'warranty'])->name('warranty');
+Route::get('/returns', [PageController::class, 'returns'])->name('returns');
+Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/offer', [PageController::class, 'offer'])->name('offer');
+Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
+Route::get('/used-market', [PageController::class, 'usedMarket'])->name('used-market');
+Route::post('/used-market', [PageController::class, 'submitUsedItem'])->name('used-market.submit');
 
 // Feeds
 Route::get('/feed/google-shopping.xml', [\App\Http\Controllers\FeedController::class, 'googleShopping'])->name('feed.google');

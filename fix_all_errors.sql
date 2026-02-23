@@ -21,6 +21,82 @@ DEALLOCATE PREPARE stmt;
 SELECT '✓ sort_order додано до brands' AS Status;
 
 -- ==========================================
+-- FIX: Add slug column to categories table
+-- ==========================================
+
+SET @column_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'categories'
+    AND COLUMN_NAME = 'slug'
+);
+
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE `categories` ADD COLUMN `slug` VARCHAR(255) NOT NULL AFTER `name`, ADD UNIQUE KEY `categories_slug_unique` (`slug`)',
+    'SELECT "Column slug already exists in categories" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SELECT '✓ slug додано до categories' AS Status;
+
+-- ==========================================
+-- FIX: Add SEO fields to categories table
+-- ==========================================
+
+SET @column_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'categories'
+    AND COLUMN_NAME = 'meta_title'
+);
+
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE `categories` ADD COLUMN `meta_title` VARCHAR(255) NULL AFTER `description`',
+    'SELECT "Column meta_title already exists in categories" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @column_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'categories'
+    AND COLUMN_NAME = 'meta_description'
+);
+
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE `categories` ADD COLUMN `meta_description` TEXT NULL AFTER `meta_title`',
+    'SELECT "Column meta_description already exists in categories" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @column_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'categories'
+    AND COLUMN_NAME = 'meta_keywords'
+);
+
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE `categories` ADD COLUMN `meta_keywords` VARCHAR(255) NULL AFTER `meta_description`',
+    'SELECT "Column meta_keywords already exists in categories" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SELECT '✓ SEO поля додано до categories' AS Status;
+
+-- ==========================================
 -- FIX: Create attribute_category pivot table
 -- ==========================================
 

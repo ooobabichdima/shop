@@ -21,28 +21,30 @@
 
             <div>
                 <h5>Каталог</h5>
+                <a href="{{ route('catalog') }}">Всі категорії</a>
                 @php
-                    $footerCategories = \App\Models\Category::take(5)->get();
+                    $footerCategories = \App\Models\Category::whereNull('parent_id')->orderBy('sort_order')->take(5)->get();
                 @endphp
                 @foreach($footerCategories as $category)
                     <a href="{{ route('category.show', $category->slug) }}">{{ $category->name }}</a>
                 @endforeach
+                <a href="{{ route('used-market') }}">Б/У ринок</a>
             </div>
 
             <div>
                 <h5>Покупцям</h5>
-                <a href="#">Доставка</a>
-                <a href="#">Оплата</a>
-                <a href="#">Гарантія</a>
-                <a href="#">Повернення</a>
+                <a href="{{ route('delivery') }}">Доставка</a>
+                <a href="{{ route('payment') }}">Оплата</a>
+                <a href="{{ route('warranty') }}">Гарантія</a>
+                <a href="{{ route('returns') }}">Повернення</a>
             </div>
 
             <div>
                 <h5>Компанія</h5>
-                <a href="#">Про нас</a>
-                <a href="#">Контакти</a>
-                <a href="#">Публічна оферта</a>
-                <a href="#">Політика конфіденційності</a>
+                <a href="{{ route('about') }}">Про нас</a>
+                <a href="{{ route('contacts') }}">Контакти</a>
+                <a href="{{ route('offer') }}">Публічна оферта</a>
+                <a href="{{ route('privacy') }}">Політика конфіденційності</a>
             </div>
         </div>
 
