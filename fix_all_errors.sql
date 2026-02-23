@@ -198,6 +198,97 @@ DEALLOCATE PREPARE stmt;
 SELECT '✓ slug додано до attributes' AS Status;
 
 -- ==========================================
+-- FIX: Add missing columns to attributes table
+-- ==========================================
+
+-- Add 'type' column
+SET @column_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'attributes'
+    AND COLUMN_NAME = 'type'
+);
+
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE `attributes` ADD COLUMN `type` VARCHAR(50) NOT NULL DEFAULT ''select'' AFTER `slug`',
+    'SELECT "Column type already exists in attributes" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Add 'options' column
+SET @column_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'attributes'
+    AND COLUMN_NAME = 'options'
+);
+
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE `attributes` ADD COLUMN `options` JSON NULL AFTER `type`',
+    'SELECT "Column options already exists in attributes" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Add 'sort_order' column
+SET @column_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'attributes'
+    AND COLUMN_NAME = 'sort_order'
+);
+
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE `attributes` ADD COLUMN `sort_order` INT NOT NULL DEFAULT 0 AFTER `options`',
+    'SELECT "Column sort_order already exists in attributes" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Add 'is_filterable' column
+SET @column_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'attributes'
+    AND COLUMN_NAME = 'is_filterable'
+);
+
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE `attributes` ADD COLUMN `is_filterable` TINYINT(1) NOT NULL DEFAULT 1 AFTER `sort_order`',
+    'SELECT "Column is_filterable already exists in attributes" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Add 'is_active' column
+SET @column_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'attributes'
+    AND COLUMN_NAME = 'is_active'
+);
+
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE `attributes` ADD COLUMN `is_active` TINYINT(1) NOT NULL DEFAULT 1 AFTER `is_filterable`',
+    'SELECT "Column is_active already exists in attributes" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SELECT '✓ Додаткові колонки додано до attributes' AS Status;
+
+-- ==========================================
 -- FIX: Add SEO fields to products (if not already done)
 -- ==========================================
 
