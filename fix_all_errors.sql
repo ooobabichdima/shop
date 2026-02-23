@@ -159,6 +159,28 @@ CREATE TABLE IF NOT EXISTS `product_attributes` (
 SELECT '✓ Таблиця product_attributes створена' AS Status;
 
 -- ==========================================
+-- FIX: Add slug column to attributes table
+-- ==========================================
+
+SET @column_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'attributes'
+    AND COLUMN_NAME = 'slug'
+);
+
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE `attributes` ADD COLUMN `slug` VARCHAR(255) NOT NULL AFTER `name`, ADD UNIQUE KEY `attributes_slug_unique` (`slug`)',
+    'SELECT "Column slug already exists in attributes" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SELECT '✓ slug додано до attributes' AS Status;
+
+-- ==========================================
 -- FIX: Add SEO fields to products (if not already done)
 -- ==========================================
 
