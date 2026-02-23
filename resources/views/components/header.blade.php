@@ -16,13 +16,14 @@
 
             <nav class="nav" aria-label="Основне меню">
                 <a href="{{ route('home') }}">Головна</a>
+                <a href="{{ route('catalog') }}">Каталог</a>
                 @php
-                    $categories = \App\Models\Category::take(3)->get();
+                    $categories = \App\Models\Category::whereNull('parent_id')->orderBy('sort_order')->take(3)->get();
                 @endphp
                 @foreach($categories as $category)
                     <a href="{{ route('category.show', $category->slug) }}">{{ $category->name }}</a>
                 @endforeach
-                <a href="#">Контакти</a>
+                <a href="{{ route('contacts') }}">Контакти</a>
             </nav>
 
             <div class="search" role="search" aria-label="Пошук по магазину">
@@ -70,10 +71,11 @@
         <div id="mobileMenu">
             <div class="grid" style="gap:10px;">
                 <a class="btn" href="{{ route('home') }}">Головна</a>
+                <a class="btn" href="{{ route('catalog') }}">Каталог</a>
                 @foreach($categories as $category)
                     <a class="btn" href="{{ route('category.show', $category->slug) }}">{{ $category->name }}</a>
                 @endforeach
-                <a class="btn" href="#">Контакти</a>
+                <a class="btn" href="{{ route('contacts') }}">Контакти</a>
             </div>
         </div>
     </div>
