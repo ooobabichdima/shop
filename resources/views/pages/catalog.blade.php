@@ -57,8 +57,24 @@
     .cat-head .bar{margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between}
     .count{color:rgba(255,255,255,.70); font-size:13px}
     .select{
-        padding:10px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.14);
-        background:rgba(0,0,0,.18); color:var(--text); outline:none; font-size:14px;
+        padding:10px 12px;
+        border-radius:14px;
+        border:1px solid rgba(255,255,255,.14);
+        background:rgba(0,0,0,.18);
+        color:var(--text);
+        outline:none;
+        font-size:14px;
+        transition:all .2s ease;
+        cursor:pointer;
+    }
+    .select:hover{
+        border-color:rgba(255,255,255,.22);
+        background:rgba(0,0,0,.25);
+    }
+    .select:focus{
+        border-color:rgba(88,255,122,.4);
+        background:rgba(0,0,0,.28);
+        box-shadow:0 0 0 3px rgba(88,255,122,.1);
     }
 
     .layout{display:grid; grid-template-columns: 320px 1fr; gap:16px; padding:16px 0 28px}
@@ -66,13 +82,46 @@
     .filters h3{margin:0 0 12px; font-size:16px}
     .filters .sec{padding:12px 0; border-top:1px solid rgba(255,255,255,.10)}
     .filters .sec:first-of-type{border-top:none; padding-top:0}
-    .filters label{display:flex; gap:10px; align-items:center; color:rgba(255,255,255,.80); font-size:14px; padding:6px 0; cursor:pointer}
-    .filters input[type="checkbox"]{width:16px; height:16px; accent-color: var(--accent)}
+    .filters label{
+        display:flex;
+        gap:10px;
+        align-items:center;
+        color:rgba(255,255,255,.80);
+        font-size:14px;
+        padding:8px 10px;
+        margin:0 -10px;
+        cursor:pointer;
+        border-radius:10px;
+        transition:all .2s ease;
+    }
+    .filters label:hover{
+        background:rgba(255,255,255,.06);
+        color:rgba(255,255,255,.95);
+    }
+    .filters input[type="checkbox"]{
+        width:18px;
+        height:18px;
+        accent-color:var(--accent);
+        cursor:pointer;
+        border-radius:4px;
+    }
     .filters .hint{color:var(--muted); font-size:12.5px; margin-top:6px}
     .range{display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px}
     .in{
-        width:100%; padding:10px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.14);
-        background:rgba(0,0,0,.18); color:var(--text); outline:none; font-size:14px;
+        width:100%;
+        padding:10px 12px;
+        border-radius:14px;
+        border:1px solid rgba(255,255,255,.14);
+        background:rgba(0,0,0,.18);
+        color:var(--text);
+        outline:none;
+        font-size:14px;
+        transition:all .2s ease;
+    }
+    .in:focus{
+        border-color:rgba(88,255,122,.4);
+        background:rgba(0,0,0,.25);
+        box-shadow:0 0 0 3px rgba(88,255,122,.1);
     }
     .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
     .chip{
@@ -130,7 +179,7 @@
 @endpush
 
 <div class="crumbs">
-    <a href="{{ route('home') }}">Головна</a> / <a href="#">Каталог</a> / <span>{{ $category->name }}</span>
+    <a href="{{ route('home') }}">Головна</a> / <a href="{{ route('catalog') }}">Каталог</a> / <span>{{ $category->name }}</span>
 </div>
 
 <div class="cat-head">

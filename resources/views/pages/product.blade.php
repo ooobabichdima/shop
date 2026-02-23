@@ -263,7 +263,7 @@
 
 <div class="crumbs">
     <a href="{{ route('home') }}">Головна</a> /
-    <a href="#">Каталог</a> /
+    <a href="{{ route('catalog') }}">Каталог</a> /
     <a href="{{ route('category.show', $product->category->slug) }}">{{ $product->category->name }}</a> /
     <span>{{ $product->name }}</span>
 </div>
