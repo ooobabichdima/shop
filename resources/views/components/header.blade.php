@@ -32,33 +32,33 @@
             <nav class="nav" aria-label="Основне меню">
                 <a href="{{ route('home') }}">Головна</a>
 
-                {{-- Catalog with mega menu --}}
+                {{-- Catalog with advanced mega menu --}}
                 <div class="nav-dropdown">
-                    <a href="{{ route('catalog') }}" class="nav-dropdown-trigger">
+                    <button class="nav-dropdown-trigger" id="catalogTrigger">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-right:6px;">
+                            <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" rx="1"/>
+                        </svg>
                         Каталог
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="margin-left:4px;transition:transform .2s ease;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="margin-left:6px;transition:transform .2s ease;">
                             <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                    </a>
+                    </button>
 
-                    <div class="mega-menu">
+                    <div class="mega-menu-advanced">
                         <div class="container">
-                            <div class="mega-menu-inner">
-                                @php
-                                    $allCategories = \App\Models\Category::with(['children' => function($q) {
-                                        $q->where('is_active', true)->orderBy('sort_order')->limit(10);
-                                    }])
-                                    ->whereNull('parent_id')
-                                    ->where('is_active', true)
-                                    ->orderBy('sort_order')
-                                    ->get();
-                                @endphp
-
-                                @foreach($allCategories as $category)
-                                <div class="mega-menu-col">
-                                    <a href="{{ route('category.show', $category->slug) }}" class="mega-menu-title">
-                                        <span class="mega-menu-icon">
-                                            @switch($category->slug)
+                            <div class="mega-menu-grid">
+                                {{-- Left sidebar with categories --}}
+                                <div class="mega-sidebar">
+                                    @php
+                                        $allCats = \App\Models\Category::whereNull('parent_id')->where('is_active', true)->orderBy('sort_order')->get();
+                                    @endphp
+                                    @foreach($allCats as $cat)
+                                    <a href="{{ route('category.show', $cat->slug) }}" class="mega-sidebar-item" data-category="{{ $cat->id }}">
+                                        <span class="mega-sidebar-icon">
+                                            @switch($cat->slug)
                                                 @case('pryvody') 🎯 @break
                                                 @case('boieprypasy') 🔘 @break
                                                 @case('apgreid') ⚙️ @break
@@ -67,44 +67,77 @@
                                                 @case('optyka') 🔭 @break
                                                 @case('zakhyst') 🛡️ @break
                                                 @case('taktychne-sporyadzhennya') 🎒 @break
-                                                @case('odyag') 👕 @break
-                                                @case('zvyazok') 📡 @break
-                                                @case('kamuflyazh') 🌿 @break
-                                                @case('instrumenty') 🔧 @break
                                                 @default 📦 @break
                                             @endswitch
                                         </span>
-                                        {{ $category->name }}
+                                        <span class="mega-sidebar-text">{{ $cat->name }}</span>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="mega-sidebar-arrow">
+                                            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
                                     </a>
-
-                                    @if($category->children && $category->children->count() > 0)
-                                    <ul class="mega-menu-list">
-                                        @foreach($category->children as $child)
-                                        <li>
-                                            <a href="{{ route('category.show', $child->slug) }}">{{ $child->name }}</a>
-                                        </li>
-                                        @endforeach
-                                        @if($category->children->count() >= 10)
-                                        <li>
-                                            <a href="{{ route('category.show', $category->slug) }}" class="mega-menu-more">
-                                                Дивитись все →
-                                            </a>
-                                        </li>
-                                        @endif
-                                    </ul>
-                                    @endif
+                                    @endforeach
                                 </div>
-                                @endforeach
 
-                                {{-- Promo block --}}
-                                <div class="mega-menu-promo">
-                                    <div class="mega-menu-promo-inner">
-                                        <div class="mega-menu-promo-icon">✨</div>
-                                        <h3>Не знаєте, що обрати?</h3>
-                                        <p>Наші експерти допоможуть підібрати обладнання</p>
-                                        <a href="{{ route('contacts') }}" class="btn btn-primary btn-sm" style="width:100%;margin-top:12px;">
-                                            Консультація
-                                        </a>
+                                {{-- Main content area --}}
+                                <div class="mega-content">
+                                    {{-- Subcategories columns --}}
+                                    <div class="mega-columns">
+                                        @php
+                                            $featuredCat = $allCats->first();
+                                            if($featuredCat) {
+                                                $subcats = \App\Models\Category::where('parent_id', $featuredCat->id)->where('is_active', true)->orderBy('sort_order')->limit(15)->get()->chunk(5);
+                                            } else {
+                                                $subcats = collect();
+                                            }
+                                        @endphp
+                                        @foreach($subcats as $chunk)
+                                        <div class="mega-column">
+                                            @foreach($chunk as $subcat)
+                                            <a href="{{ route('category.show', $subcat->slug) }}" class="mega-column-link">
+                                                {{ $subcat->name }}
+                                            </a>
+                                            @endforeach
+                                        </div>
+                                        @endforeach
+                                    </div>
+
+                                    {{-- Bottom section: Brands + Quick filters + Banners --}}
+                                    <div class="mega-bottom">
+                                        {{-- Popular brands --}}
+                                        <div class="mega-brands">
+                                            <div class="mega-section-title">Популярні бренди</div>
+                                            <div class="mega-brands-grid">
+                                                @php
+                                                    $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->limit(8)->get();
+                                                @endphp
+                                                @foreach($brands as $brand)
+                                                <a href="{{ route('catalog') }}?brand[]={{ $brand->id }}" class="mega-brand-item">
+                                                    {{ $brand->name }}
+                                                </a>
+                                                @endforeach
+                                            </div>
+                                        </div>
+
+                                        {{-- Quick filters --}}
+                                        <div class="mega-filters">
+                                            <div class="mega-section-title">Швидкий доступ</div>
+                                            <div class="mega-filters-list">
+                                                <a href="{{ route('catalog') }}?sort=newest" class="mega-filter-chip">✨ Новинки</a>
+                                                <a href="{{ route('catalog') }}?sort=popular" class="mega-filter-chip">🔥 Хіти продажів</a>
+                                                <a href="{{ route('catalog') }}?price_to=1000" class="mega-filter-chip">💰 До 1000 грн</a>
+                                                <a href="{{ route('catalog') }}?in_stock=1" class="mega-filter-chip">✅ В наявності</a>
+                                            </div>
+                                        </div>
+
+                                        {{-- Promo banner --}}
+                                        <div class="mega-banner">
+                                            <div class="mega-banner-content">
+                                                <div class="mega-banner-tag">Спеціальна пропозиція</div>
+                                                <h3>Знижки до -30%</h3>
+                                                <p>На вибране обладнання</p>
+                                                <a href="{{ route('catalog') }}" class="btn btn-primary btn-sm">Переглянути</a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -113,11 +146,12 @@
                 </div>
 
                 @php
-                    $topCategories = \App\Models\Category::whereNull('parent_id')->orderBy('sort_order')->take(3)->get();
+                    $topCategories = \App\Models\Category::whereNull('parent_id')->orderBy('sort_order')->take(2)->get();
                 @endphp
                 @foreach($topCategories as $category)
                     <a href="{{ route('category.show', $category->slug) }}">{{ $category->name }}</a>
                 @endforeach
+                <a href="{{ route('blog.index') }}">Блог</a>
                 <a href="{{ route('contacts') }}">Контакти</a>
             </nav>
 
@@ -188,31 +222,44 @@
         });
     }
 
-    // Mega menu functionality
-    const dropdown = document.querySelector('.nav-dropdown');
-    const megaMenu = document.querySelector('.mega-menu');
-    const trigger = document.querySelector('.nav-dropdown-trigger');
+    // Advanced mega menu functionality
+    const trigger = document.getElementById('catalogTrigger');
+    const megaMenu = document.querySelector('.mega-menu-advanced');
 
-    if(dropdown && megaMenu && trigger) {
+    if(trigger && megaMenu) {
         let timeout;
 
-        dropdown.addEventListener('mouseenter', () => {
+        const showMenu = () => {
             clearTimeout(timeout);
             megaMenu.style.display = 'block';
             setTimeout(() => {
                 megaMenu.classList.add('mega-menu-open');
             }, 10);
-            trigger.querySelector('svg').style.transform = 'rotate(180deg)';
-        });
+            trigger.querySelector('svg:last-child').style.transform = 'rotate(180deg)';
+        };
 
-        dropdown.addEventListener('mouseleave', () => {
+        const hideMenu = () => {
             timeout = setTimeout(() => {
                 megaMenu.classList.remove('mega-menu-open');
                 setTimeout(() => {
                     megaMenu.style.display = 'none';
                 }, 200);
-            }, 150);
-            trigger.querySelector('svg').style.transform = 'rotate(0deg)';
+            }, 200);
+            trigger.querySelector('svg:last-child').style.transform = 'rotate(0deg)';
+        };
+
+        trigger.addEventListener('mouseenter', showMenu);
+        trigger.addEventListener('mouseleave', hideMenu);
+        trigger.parentElement.addEventListener('mouseenter', showMenu);
+        trigger.parentElement.addEventListener('mouseleave', hideMenu);
+
+        // Sidebar hover effects
+        const sidebarItems = document.querySelectorAll('.mega-sidebar-item');
+        sidebarItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
         });
     }
 })();

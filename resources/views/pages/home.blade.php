@@ -199,6 +199,35 @@
     .feature h3{font-size:14px;font-weight:700;margin-bottom:4px}
     .feature p{font-size:12px;color:var(--text3);line-height:1.5}
 
+    /* ═══ PROMO BANNERS ═══ */
+    .promo-banners{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+    .promo-banner{
+        position:relative;border-radius:var(--radius-lg);overflow:hidden;
+        border:1px solid var(--border);transition:var(--transition);display:flex;
+        align-items:center;justify-content:space-between;padding:24px 28px;
+    }
+    .promo-banner:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--border2)}
+    .promo-banner-bg{position:absolute;inset:0;z-index:0}
+    .promo-banner-content{position:relative;z-index:1;flex:1}
+    .promo-banner-tag{
+        display:inline-block;padding:4px 10px;border-radius:6px;font-size:10px;
+        font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+        background:rgba(255,255,255,.1);color:var(--text);margin-bottom:8px;
+    }
+    .promo-banner-title{font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-.02em}
+    .promo-banner-text{font-size:14px;color:var(--text2);margin:0 0 12px}
+    .promo-banner-cta{
+        display:inline-flex;align-items:center;gap:6px;font-size:14px;
+        font-weight:700;color:var(--accent);
+    }
+    .promo-banner-icon{
+        position:relative;z-index:1;font-size:48px;opacity:.9;flex-shrink:0;
+    }
+    .promo-banner-lg{min-height:200px}
+    .promo-banner-sm h4{font-size:16px;font-weight:700;margin:0 0 4px}
+    .promo-banner-sm p{font-size:12px;color:var(--text3);margin:0}
+    .promo-banners-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+
     /* ═══ CTA BANNER ═══ */
     .cta-banner{
         position:relative;padding:48px;border-radius:var(--radius-lg);overflow:hidden;
@@ -262,6 +291,66 @@
                 <div class="hero-stat-num">24h</div>
                 <div class="hero-stat-label">Відправка</div>
             </div>
+        </div>
+    </div>
+</div>
+
+{{-- ═══ PROMO BANNERS ═══ --}}
+<div class="section" style="margin:40px 0">
+    <div class="promo-banners">
+        {{-- Large banner --}}
+        <a href="{{ route('catalog') }}?sort=newest" class="promo-banner promo-banner-lg">
+            <div class="promo-banner-bg" style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(217,119,6,.08))"></div>
+            <div class="promo-banner-content">
+                <span class="promo-banner-tag">Новинки сезону</span>
+                <h3 class="promo-banner-title">Нові приводи 2026</h3>
+                <p class="promo-banner-text">Ексклюзивні моделі від топових виробників</p>
+                <span class="promo-banner-cta">Переглянути →</span>
+            </div>
+            <div class="promo-banner-icon">🎯</div>
+        </a>
+
+        {{-- Small banners grid --}}
+        <div class="promo-banners-grid">
+            <a href="{{ route('catalog') }}?price_to=2000" class="promo-banner promo-banner-sm">
+                <div class="promo-banner-bg" style="background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(37,99,235,.08))"></div>
+                <div class="promo-banner-content">
+                    <span class="promo-banner-tag">Акція</span>
+                    <h4>До 2000 грн</h4>
+                    <p>Вигідні пропозиції</p>
+                </div>
+                <div class="promo-banner-icon" style="font-size:28px">💰</div>
+            </a>
+
+            <a href="{{ route('catalog') }}?in_stock=1" class="promo-banner promo-banner-sm">
+                <div class="promo-banner-bg" style="background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(21,128,61,.08))"></div>
+                <div class="promo-banner-content">
+                    <span class="promo-banner-tag">В наявності</span>
+                    <h4>Швидка доставка</h4>
+                    <p>Відправка сьогодні</p>
+                </div>
+                <div class="promo-banner-icon" style="font-size:28px">🚚</div>
+            </a>
+
+            <a href="{{ route('catalog') }}" class="promo-banner promo-banner-sm">
+                <div class="promo-banner-bg" style="background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(126,34,206,.08))"></div>
+                <div class="promo-banner-content">
+                    <span class="promo-banner-tag">Топ вибір</span>
+                    <h4>Хіти продажів</h4>
+                    <p>Найпопулярніше</p>
+                </div>
+                <div class="promo-banner-icon" style="font-size:28px">⭐</div>
+            </a>
+
+            <a href="{{ route('contacts') }}" class="promo-banner promo-banner-sm">
+                <div class="promo-banner-bg" style="background:linear-gradient(135deg,rgba(251,146,60,.12),rgba(234,88,12,.08))"></div>
+                <div class="promo-banner-content">
+                    <span class="promo-banner-tag">Допомога</span>
+                    <h4>Консультація</h4>
+                    <p>Підберемо обладнання</p>
+                </div>
+                <div class="promo-banner-icon" style="font-size:28px">💬</div>
+            </a>
         </div>
     </div>
 </div>

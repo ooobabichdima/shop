@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\BlogCategoryController;
+use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -7,6 +9,7 @@ use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PriceImportController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
@@ -67,6 +70,11 @@ Route::post('/payment/monobank/webhook', [PaymentController::class, 'monobankWeb
 Route::get('/payment/monobank/demo/{payment}', [PaymentController::class, 'monobankDemo'])->name('payment.monobank.demo');
 Route::post('/payment/monobank/demo/{payment}/confirm', [PaymentController::class, 'monobankDemoConfirm'])->name('payment.monobank.demo.confirm');
 
+// Blog
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/category/{slug}', [BlogController::class, 'category'])->name('blog.category');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+
 // Admin routes (protected by admin middleware)
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -126,6 +134,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show');
     Route::post('/leads/{lead}/status', [LeadController::class, 'updateStatus'])->name('leads.updateStatus');
     Route::post('/leads/{lead}/notes', [LeadController::class, 'updateNotes'])->name('leads.updateNotes');
+
+    // Blog Posts
+    Route::get('/blog/posts', [BlogPostController::class, 'index'])->name('blog.posts.index');
+    Route::get('/blog/posts/create', [BlogPostController::class, 'create'])->name('blog.posts.create');
+    Route::post('/blog/posts', [BlogPostController::class, 'store'])->name('blog.posts.store');
+    Route::get('/blog/posts/{post}/edit', [BlogPostController::class, 'edit'])->name('blog.posts.edit');
+    Route::put('/blog/posts/{post}', [BlogPostController::class, 'update'])->name('blog.posts.update');
+    Route::delete('/blog/posts/{post}', [BlogPostController::class, 'destroy'])->name('blog.posts.destroy');
+
+    // Blog Categories
+    Route::get('/blog/categories', [BlogCategoryController::class, 'index'])->name('blog.categories.index');
+    Route::get('/blog/categories/create', [BlogCategoryController::class, 'create'])->name('blog.categories.create');
+    Route::post('/blog/categories', [BlogCategoryController::class, 'store'])->name('blog.categories.store');
+    Route::get('/blog/categories/{category}/edit', [BlogCategoryController::class, 'edit'])->name('blog.categories.edit');
+    Route::put('/blog/categories/{category}', [BlogCategoryController::class, 'update'])->name('blog.categories.update');
+    Route::delete('/blog/categories/{category}', [BlogCategoryController::class, 'destroy'])->name('blog.categories.destroy');
 });
 
 require __DIR__.'/auth.php';
