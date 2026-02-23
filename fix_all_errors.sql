@@ -162,6 +162,7 @@ SELECT '✓ Таблиця product_attributes створена' AS Status;
 -- FIX: Add slug column to attributes table
 -- ==========================================
 
+-- Step 1: Add slug column as nullable first
 SET @column_exists = (
     SELECT COUNT(*)
     FROM information_schema.COLUMNS
@@ -171,8 +172,66 @@ SET @column_exists = (
 );
 
 SET @sql = IF(@column_exists = 0,
-    'ALTER TABLE `attributes` ADD COLUMN `slug` VARCHAR(255) NOT NULL AFTER `name`, ADD UNIQUE KEY `attributes_slug_unique` (`slug`)',
+    'ALTER TABLE `attributes` ADD COLUMN `slug` VARCHAR(255) NULL AFTER `name`',
     'SELECT "Column slug already exists in attributes" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Step 2: Generate slug values for existing records
+UPDATE `attributes`
+SET `slug` = LOWER(
+    REPLACE(
+        REPLACE(
+            REPLACE(
+                REPLACE(`name`, ' ', '-'),
+                '/', '-'
+            ),
+            '(', ''
+        ),
+        ')', ''
+    )
+)
+WHERE `slug` IS NULL OR `slug` = '';
+
+-- Step 3: Handle duplicates by appending ID
+UPDATE `attributes` a1
+SET `slug` = CONCAT(a1.`slug`, '-', a1.`id`)
+WHERE EXISTS (
+    SELECT 1 FROM (SELECT `slug`, COUNT(*) as cnt FROM `attributes` GROUP BY `slug` HAVING cnt > 1) a2
+    WHERE a2.`slug` = a1.`slug`
+);
+
+-- Step 4: Make slug NOT NULL
+SET @column_nullable = (
+    SELECT IS_NULLABLE
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'attributes'
+    AND COLUMN_NAME = 'slug'
+);
+
+SET @sql = IF(@column_nullable = 'YES',
+    'ALTER TABLE `attributes` MODIFY COLUMN `slug` VARCHAR(255) NOT NULL',
+    'SELECT "Column slug is already NOT NULL" AS message'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Step 5: Add unique constraint if not exists
+SET @index_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'attributes'
+    AND INDEX_NAME = 'attributes_slug_unique'
+);
+
+SET @sql = IF(@index_exists = 0,
+    'ALTER TABLE `attributes` ADD UNIQUE KEY `attributes_slug_unique` (`slug`)',
+    'SELECT "Unique key attributes_slug_unique already exists" AS message'
 );
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
