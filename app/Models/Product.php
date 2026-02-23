@@ -136,6 +136,59 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function warehouses()
+    {
+        return $this->belongsToMany(Warehouse::class, 'product_warehouse')
+            ->withPivot(['quantity', 'reserved'])
+            ->withTimestamps();
+    }
+
+    // Загальна кількість на всіх складах
+    public function getTotalStockAttribute(): int
+    {
+        return $this->warehouses->sum(function($warehouse) {
+            return $warehouse->pivot->quantity;
+        });
+    }
+
+    // Доступна кількість (quantity - reserved) на всіх складах
+    public function getAvailableStockAttribute(): int
+    {
+        return $this->warehouses->sum(function($warehouse) {
+            return max(0, $warehouse->pivot->quantity - $warehouse->pivot->reserved);
+        });
+    }
+
+    // Чи є товар в наявності
+    public function isInStockOnWarehouse(): bool
+    {
+        return $this->getAvailableStockAttribute() > 0;
+    }
+
+    // Статус товару: "в наявності" або "під замовлення"
+    public function getStockStatusAttribute(): string
+    {
+        if ($this->isInStockOnWarehouse()) {
+            return 'в наявності';
+        }
+        return 'під замовлення';
+    }
+
+    // Статус товару з кольором для фронтенду
+    public function getStockStatusBadgeAttribute(): array
+    {
+        if ($this->isInStockOnWarehouse()) {
+            return [
+                'text' => '✅ В наявності',
+                'class' => 'in-stock',
+            ];
+        }
+        return [
+            'text' => '📦 Під замовлення',
+            'class' => 'on-order',
+        ];
+    }
+
     public function getDiscountPercentAttribute(): int
     {
         if (!$this->old_price || $this->old_price <= $this->price) {
@@ -146,6 +199,10 @@ class Product extends Model
 
     public function isInStock(): bool
     {
+        // Використовуємо систему складів якщо є дані, інакше старе поле stock
+        if ($this->warehouses->isNotEmpty()) {
+            return $this->isInStockOnWarehouse();
+        }
         return $this->stock > 0;
     }
 

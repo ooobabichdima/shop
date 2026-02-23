@@ -15,6 +15,7 @@ class ProductController extends Controller
             'attributes',
             'recommended.brand',
             'recommended.category',
+            'warehouses',
         ])
             ->where('slug', $slug)
             ->where('is_active', true)

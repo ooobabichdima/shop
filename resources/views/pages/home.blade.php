@@ -119,30 +119,43 @@
     .section-header h2{font-size:clamp(22px,2.5vw,32px);font-weight:800;letter-spacing:-.02em;line-height:1.2}
     .section-header p{color:var(--text3);font-size:14px;margin-top:4px}
 
-    /* ═══ HORIZONTAL CATEGORY SCROLL ═══ */
-    .cat-scroll{
-        display:flex;gap:12px;overflow-x:auto;padding:4px 0 16px;
-        scrollbar-width:thin;scrollbar-color:var(--border) transparent;
-        -webkit-overflow-scrolling:touch;
-    }
-    .cat-scroll::-webkit-scrollbar{height:4px}
-    .cat-scroll::-webkit-scrollbar-track{background:transparent}
-    .cat-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
-    .cat-item{
-        flex-shrink:0;padding:20px 28px;border-radius:var(--radius);
+    /* ═══ CATEGORY GRID ═══ */
+    .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+    .cat-card{
+        position:relative;border-radius:var(--radius-lg);
         border:1px solid var(--border);background:var(--surface);
-        transition:var(--transition);cursor:pointer;text-align:center;min-width:180px;
-        position:relative;overflow:hidden;
+        transition:var(--transition);overflow:hidden;
+        display:flex;flex-direction:column;align-items:center;
+        padding:24px 20px;text-align:center;
     }
-    .cat-item::before{
-        content:'';position:absolute;top:0;left:0;right:0;height:2px;
-        background:linear-gradient(90deg,var(--accent),var(--accent2));
-        transform:scaleX(0);transform-origin:left;transition:transform .3s ease;
+    .cat-card::before{
+        content:'';position:absolute;inset:0;
+        background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+        opacity:0;transition:opacity .3s ease;z-index:0;
     }
-    .cat-item:hover::before{transform:scaleX(1)}
-    .cat-item:hover{border-color:var(--border2);background:var(--surface2);transform:translateY(-2px)}
-    .cat-item h3{font-size:15px;font-weight:700;margin-bottom:4px}
-    .cat-item .cat-count{font-size:12px;color:var(--text3)}
+    .cat-card:hover::before{opacity:.05}
+    .cat-card:hover{
+        border-color:var(--border2);transform:translateY(-4px);
+        box-shadow:var(--shadow-lg);
+    }
+    .cat-card-img{
+        position:relative;z-index:1;width:80px;height:80px;
+        border-radius:var(--radius);
+        display:grid;place-items:center;margin-bottom:16px;
+        background:var(--surface2);border:1px solid var(--border);
+        overflow:hidden;
+    }
+    .cat-card-img img{width:100%;height:100%;object-fit:cover}
+    .cat-card-img-placeholder{font-size:32px}
+    .cat-card-body{position:relative;z-index:1;width:100%}
+    .cat-card h3{font-size:15px;font-weight:700;margin-bottom:6px;line-height:1.3}
+    .cat-card-count{font-size:12px;color:var(--text3);margin-bottom:12px}
+    .cat-card-cta{
+        display:inline-flex;align-items:center;gap:4px;
+        font-size:13px;font-weight:600;color:var(--accent);
+        opacity:0;transform:translateY(4px);transition:all .3s ease;
+    }
+    .cat-card:hover .cat-card-cta{opacity:1;transform:translateY(0)}
 
     /* ═══ PRODUCT GRID ═══ */
     .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
@@ -171,6 +184,13 @@
     .product-badge.hot{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--accent2)}
     .product-badge.sale{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--success)}
     .product-badge.new{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:var(--info)}
+    .product-stock-badge{
+        position:absolute;top:12px;right:12px;z-index:2;
+        padding:4px 9px;border-radius:6px;font-size:10px;font-weight:700;
+        letter-spacing:.03em;
+    }
+    .product-stock-badge.in-stock{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--success)}
+    .product-stock-badge.on-order{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--accent2)}
     .product-body{padding:16px 18px;flex:1;display:flex;flex-direction:column}
     .product-name{
         font-size:15px;font-weight:600;line-height:1.4;margin-bottom:8px;
@@ -355,22 +375,44 @@
     </div>
 </div>
 
-{{-- ═══ CATEGORIES ═══ --}}
+{{-- ═══ POPULAR CATEGORIES ═══ --}}
 @if($categories->count() > 0)
 <div class="section" id="categories">
     <div class="section-header">
         <div>
-            <div class="section-label">Каталог</div>
-            <h2>Категорії товарів</h2>
+            <h2>Популярні категорії</h2>
+            <p>Оберіть категорію для швидкого доступу до товарів</p>
         </div>
-        <a href="{{ route('catalog') }}" class="btn btn-sm">Дивитись все &rarr;</a>
+        <a href="{{ route('catalog') }}" class="btn btn-sm">Весь каталог &rarr;</a>
     </div>
 
-    <div class="cat-scroll">
-        @foreach($categories as $category)
-        <a href="{{ route('category.show', $category->slug) }}" class="cat-item">
-            <h3>{{ $category->name }}</h3>
-            <div class="cat-count">{{ $category->children_count ?? 0 }} підкатегорій</div>
+    <div class="cat-grid">
+        @foreach($categories->take(8) as $category)
+        <a href="{{ route('category.show', $category->slug) }}" class="cat-card">
+            <div class="cat-card-img">
+                @if($category->image)
+                    <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}">
+                @else
+                    <div class="cat-card-img-placeholder">
+                        @switch($category->slug)
+                            @case('pryvody') 🎯 @break
+                            @case('boieprypasy') 🔘 @break
+                            @case('apgreid') ⚙️ @break
+                            @case('magazyny') 📋 @break
+                            @case('akumulyatory') 🔋 @break
+                            @case('optyka') 🔭 @break
+                            @case('zakhyst') 🛡️ @break
+                            @case('taktychne-sporyadzhennya') 🎒 @break
+                            @default 📦 @break
+                        @endswitch
+                    </div>
+                @endif
+            </div>
+            <div class="cat-card-body">
+                <h3>{{ $category->name }}</h3>
+                <div class="cat-card-count">{{ $category->products_count ?? 0 }} товарів</div>
+                <span class="cat-card-cta">Переглянути →</span>
+            </div>
         </a>
         @endforeach
     </div>
@@ -399,6 +441,10 @@
                 @elseif($loop->index === 2)
                     <span class="product-badge new">Новинка</span>
                 @endif
+                @php
+                    $stockBadge = $product->stock_status_badge;
+                @endphp
+                <span class="product-stock-badge {{ $stockBadge['class'] }}">{{ $stockBadge['text'] }}</span>
                 <span>📦</span>
             </a>
             <div class="product-body">

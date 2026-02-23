@@ -150,6 +150,20 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/blog/categories/{category}/edit', [BlogCategoryController::class, 'edit'])->name('blog.categories.edit');
     Route::put('/blog/categories/{category}', [BlogCategoryController::class, 'update'])->name('blog.categories.update');
     Route::delete('/blog/categories/{category}', [BlogCategoryController::class, 'destroy'])->name('blog.categories.destroy');
+
+    // Warehouses
+    Route::get('/warehouses', [\App\Http\Controllers\Admin\WarehouseController::class, 'index'])->name('warehouses.index');
+    Route::get('/warehouses/create', [\App\Http\Controllers\Admin\WarehouseController::class, 'create'])->name('warehouses.create');
+    Route::post('/warehouses', [\App\Http\Controllers\Admin\WarehouseController::class, 'store'])->name('warehouses.store');
+    Route::get('/warehouses/{warehouse}/edit', [\App\Http\Controllers\Admin\WarehouseController::class, 'edit'])->name('warehouses.edit');
+    Route::put('/warehouses/{warehouse}', [\App\Http\Controllers\Admin\WarehouseController::class, 'update'])->name('warehouses.update');
+    Route::delete('/warehouses/{warehouse}', [\App\Http\Controllers\Admin\WarehouseController::class, 'destroy'])->name('warehouses.destroy');
+
+    // Stock Management
+    Route::get('/stock', [\App\Http\Controllers\Admin\StockController::class, 'index'])->name('stock.index');
+    Route::get('/stock/{product}/edit', [\App\Http\Controllers\Admin\StockController::class, 'edit'])->name('stock.edit');
+    Route::put('/stock/{product}', [\App\Http\Controllers\Admin\StockController::class, 'update'])->name('stock.update');
+    Route::post('/stock/{product}/{warehouse}/quick-update', [\App\Http\Controllers\Admin\StockController::class, 'quickUpdate'])->name('stock.quickUpdate');
 });
 
 require __DIR__.'/auth.php';

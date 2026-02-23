@@ -58,17 +58,21 @@
                                     @foreach($allCats as $cat)
                                     <a href="{{ route('category.show', $cat->slug) }}" class="mega-sidebar-item" data-category="{{ $cat->id }}">
                                         <span class="mega-sidebar-icon">
-                                            @switch($cat->slug)
-                                                @case('pryvody') 🎯 @break
-                                                @case('boieprypasy') 🔘 @break
-                                                @case('apgreid') ⚙️ @break
-                                                @case('magazyny') 📋 @break
-                                                @case('akumulyatory') 🔋 @break
-                                                @case('optyka') 🔭 @break
-                                                @case('zakhyst') 🛡️ @break
-                                                @case('taktychne-sporyadzhennya') 🎒 @break
-                                                @default 📦 @break
-                                            @endswitch
+                                            @if($cat->image)
+                                                <img src="{{ asset('storage/' . $cat->image) }}" alt="{{ $cat->name }}" style="width:24px;height:24px;object-fit:cover;border-radius:4px;">
+                                            @else
+                                                @switch($cat->slug)
+                                                    @case('pryvody') 🎯 @break
+                                                    @case('boieprypasy') 🔘 @break
+                                                    @case('apgreid') ⚙️ @break
+                                                    @case('magazyny') 📋 @break
+                                                    @case('akumulyatory') 🔋 @break
+                                                    @case('optyka') 🔭 @break
+                                                    @case('zakhyst') 🛡️ @break
+                                                    @case('taktychne-sporyadzhennya') 🎒 @break
+                                                    @default 📦 @break
+                                                @endswitch
+                                            @endif
                                         </span>
                                         <span class="mega-sidebar-text">{{ $cat->name }}</span>
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="mega-sidebar-arrow">

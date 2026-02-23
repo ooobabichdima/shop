@@ -26,6 +26,7 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'sort_order' => 'nullable|integer',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $slug = Str::slug($request->name);
@@ -36,13 +37,20 @@ class CategoryController extends Controller
             $count++;
         }
 
-        Category::create([
+        $data = [
             'name' => $request->name,
             'slug' => $slug,
             'description' => $request->description,
             'sort_order' => $request->sort_order ?? 0,
             'is_active' => $request->has('is_active'),
-        ]);
+        ];
+
+        // Upload image if provided
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('categories', 'public');
+        }
+
+        Category::create($data);
 
         return redirect()->route('admin.categories.index')->with('success', 'Категорію створено успішно!');
     }
@@ -60,6 +68,7 @@ class CategoryController extends Controller
             'sort_order' => 'nullable|integer',
             'attributes' => 'nullable|array',
             'attributes.*' => 'exists:attributes,id',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $slug = Str::slug($request->name);
@@ -72,13 +81,24 @@ class CategoryController extends Controller
             }
         }
 
-        $category->update([
+        $data = [
             'name' => $request->name,
             'slug' => $slug,
             'description' => $request->description,
             'sort_order' => $request->sort_order ?? 0,
             'is_active' => $request->has('is_active'),
-        ]);
+        ];
+
+        // Upload new image if provided
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($category->image && \Storage::disk('public')->exists($category->image)) {
+                \Storage::disk('public')->delete($category->image);
+            }
+            $data['image'] = $request->file('image')->store('categories', 'public');
+        }
+
+        $category->update($data);
 
         // Sync attributes
         if ($request->has('attributes')) {

@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('admin.categories.store') }}">
+    <form method="POST" action="{{ route('admin.categories.store') }}" enctype="multipart/form-data">
         @csrf
 
         <div class="card" style="padding:20px;margin-bottom:16px;">
@@ -52,6 +52,13 @@
                     <textarea name="description" rows="4"
                         style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">{{ old('description') }}</textarea>
                     <small style="color:var(--muted);margin-top:4px;display:block;">Опис категорії для SEO</small>
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Зображення категорії</label>
+                    <input type="file" name="image" accept="image/*"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Іконка для mega menu та сторінки категорій (рекомендовано 256x256px)</small>
                 </div>
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">

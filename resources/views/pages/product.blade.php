@@ -277,7 +277,7 @@
         <div class="row" style="justify-content:space-between; flex-wrap:wrap;">
             <span class="pill">
                 @if($product->is_featured)★ Хіт • @endif
-                @if($product->isInStock())В наявності @else Немає в наявності @endif
+{{ $product->stock_status }}
             </span>
             @if($product->brand)
                 <span class="pill">{{ $product->brand->name }}</span>
@@ -415,8 +415,19 @@
                         @endif
                     </div>
                     <div class="stock">
-                        Наявність: <b>{{ $product->isInStock() ? 'в наявності' : 'немає' }}</b>
-                        @if($product->isInStock()) • Залишок: <b>{{ $product->stock }}</b>@endif
+                        @php
+                            $stockBadge = $product->stock_status_badge;
+                            $availableStock = $product->available_stock;
+                        @endphp
+                        @if($stockBadge['class'] === 'in-stock')
+                            <span style="color:var(--success);">{{ $stockBadge['text'] }}</span>
+                            @if($availableStock > 0)
+                                • Доступно: <b>{{ $availableStock }} шт</b>
+                            @endif
+                        @else
+                            <span style="color:var(--accent);">{{ $stockBadge['text'] }}</span>
+                            <span style="font-size:12px;color:var(--muted);"> • Термін: 3-7 днів</span>
+                        @endif
                     </div>
                 </div>
 

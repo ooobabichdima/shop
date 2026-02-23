@@ -10,13 +10,13 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $featuredProducts = Product::with(['category', 'brand', 'primaryImage'])
+        $featuredProducts = Product::with(['category', 'brand', 'primaryImage', 'warehouses'])
             ->where('is_active', true)
             ->where('is_featured', true)
             ->take(8)
             ->get();
 
-        $newProducts = Product::with(['category', 'brand', 'primaryImage'])
+        $newProducts = Product::with(['category', 'brand', 'primaryImage', 'warehouses'])
             ->where('is_active', true)
             ->where('is_new', true)
             ->take(8)

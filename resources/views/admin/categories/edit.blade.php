@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('admin.categories.update', $category) }}">
+    <form method="POST" action="{{ route('admin.categories.update', $category) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -62,6 +62,20 @@
                     <textarea name="description" rows="4"
                         style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">{{ old('description', $category->description) }}</textarea>
                     <small style="color:var(--muted);margin-top:4px;display:block;">Опис категорії для SEO</small>
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Зображення категорії</label>
+                    @if($category->image)
+                        <div style="margin-bottom:12px;">
+                            <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}"
+                                style="max-width:200px;border-radius:14px;border:1px solid rgba(255,255,255,.14);">
+                            <div style="margin-top:8px;color:var(--muted);font-size:14px;">Поточне зображення</div>
+                        </div>
+                    @endif
+                    <input type="file" name="image" accept="image/*"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Іконка для mega menu та сторінки категорій (рекомендовано 256x256px)</small>
                 </div>
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
