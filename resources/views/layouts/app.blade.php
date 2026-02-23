@@ -180,6 +180,64 @@
         .nav a:hover{color:var(--text);background:var(--surface2)}
         .nav a.active{color:var(--accent)}
 
+        /* ═══ MEGA MENU ═══ */
+        .nav-dropdown{position:relative}
+        .nav-dropdown-trigger{
+            display:flex;align-items:center;padding:8px 14px;border-radius:8px;
+            font-size:14px;font-weight:500;color:var(--text2);transition:var(--transition);
+        }
+        .nav-dropdown-trigger:hover{color:var(--text);background:var(--surface2)}
+        .mega-menu{
+            display:none;position:absolute;left:0;right:0;top:100%;
+            background:rgba(10,10,10,.95);backdrop-filter:blur(20px) saturate(180%);
+            -webkit-backdrop-filter:blur(20px) saturate(180%);
+            border-top:1px solid var(--border);
+            border-bottom:1px solid var(--border);
+            box-shadow:0 20px 60px rgba(0,0,0,.6);
+            opacity:0;transform:translateY(-10px);
+            transition:opacity .2s ease,transform .2s ease;
+            z-index:200;
+        }
+        .mega-menu-open{opacity:1;transform:translateY(0)}
+        .mega-menu-inner{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+            gap:32px;
+            padding:40px 0;
+        }
+        .mega-menu-col{}
+        .mega-menu-title{
+            display:flex;align-items:center;gap:10px;
+            font-size:15px;font-weight:700;color:var(--text);
+            padding:8px 12px;border-radius:8px;margin:-8px -12px 12px;
+            transition:var(--transition);
+        }
+        .mega-menu-title:hover{background:var(--surface2);color:var(--accent)}
+        .mega-menu-icon{font-size:20px;flex-shrink:0}
+        .mega-menu-list{list-style:none;display:flex;flex-direction:column;gap:2px}
+        .mega-menu-list li{}
+        .mega-menu-list a{
+            display:block;padding:7px 12px;border-radius:6px;
+            font-size:13px;color:var(--text2);transition:var(--transition);
+        }
+        .mega-menu-list a:hover{background:var(--surface2);color:var(--text);padding-left:16px}
+        .mega-menu-more{color:var(--accent) !important;font-weight:600}
+        .mega-menu-more:hover{background:var(--accent-glow) !important}
+
+        .mega-menu-promo{
+            grid-column:span 1;
+            border-radius:var(--radius);border:1px solid rgba(245,158,11,.25);
+            background:var(--accent-glow);padding:24px;
+        }
+        .mega-menu-promo-inner{text-align:center}
+        .mega-menu-promo-icon{font-size:32px;margin-bottom:12px}
+        .mega-menu-promo h3{
+            font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text);
+        }
+        .mega-menu-promo p{
+            font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:0;
+        }
+
         .header-search{
             flex:1;max-width:380px;margin-left:auto;position:relative;
         }

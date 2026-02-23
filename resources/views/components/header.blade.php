@@ -31,11 +31,91 @@
 
             <nav class="nav" aria-label="Основне меню">
                 <a href="{{ route('home') }}">Головна</a>
-                <a href="{{ route('catalog') }}">Каталог</a>
+
+                {{-- Catalog with mega menu --}}
+                <div class="nav-dropdown">
+                    <a href="{{ route('catalog') }}" class="nav-dropdown-trigger">
+                        Каталог
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="margin-left:4px;transition:transform .2s ease;">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+
+                    <div class="mega-menu">
+                        <div class="container">
+                            <div class="mega-menu-inner">
+                                @php
+                                    $allCategories = \App\Models\Category::with(['children' => function($q) {
+                                        $q->where('is_active', true)->orderBy('sort_order')->limit(10);
+                                    }])
+                                    ->whereNull('parent_id')
+                                    ->where('is_active', true)
+                                    ->orderBy('sort_order')
+                                    ->get();
+                                @endphp
+
+                                @foreach($allCategories as $category)
+                                <div class="mega-menu-col">
+                                    <a href="{{ route('category.show', $category->slug) }}" class="mega-menu-title">
+                                        <span class="mega-menu-icon">
+                                            @switch($category->slug)
+                                                @case('pryvody') 🎯 @break
+                                                @case('boieprypasy') 🔘 @break
+                                                @case('apgreid') ⚙️ @break
+                                                @case('magazyny') 📋 @break
+                                                @case('akumulyatory') 🔋 @break
+                                                @case('optyka') 🔭 @break
+                                                @case('zakhyst') 🛡️ @break
+                                                @case('taktychne-sporyadzhennya') 🎒 @break
+                                                @case('odyag') 👕 @break
+                                                @case('zvyazok') 📡 @break
+                                                @case('kamuflyazh') 🌿 @break
+                                                @case('instrumenty') 🔧 @break
+                                                @default 📦 @break
+                                            @endswitch
+                                        </span>
+                                        {{ $category->name }}
+                                    </a>
+
+                                    @if($category->children && $category->children->count() > 0)
+                                    <ul class="mega-menu-list">
+                                        @foreach($category->children as $child)
+                                        <li>
+                                            <a href="{{ route('category.show', $child->slug) }}">{{ $child->name }}</a>
+                                        </li>
+                                        @endforeach
+                                        @if($category->children->count() >= 10)
+                                        <li>
+                                            <a href="{{ route('category.show', $category->slug) }}" class="mega-menu-more">
+                                                Дивитись все →
+                                            </a>
+                                        </li>
+                                        @endif
+                                    </ul>
+                                    @endif
+                                </div>
+                                @endforeach
+
+                                {{-- Promo block --}}
+                                <div class="mega-menu-promo">
+                                    <div class="mega-menu-promo-inner">
+                                        <div class="mega-menu-promo-icon">✨</div>
+                                        <h3>Не знаєте, що обрати?</h3>
+                                        <p>Наші експерти допоможуть підібрати обладнання</p>
+                                        <a href="{{ route('contacts') }}" class="btn btn-primary btn-sm" style="width:100%;margin-top:12px;">
+                                            Консультація
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 @php
-                    $categories = \App\Models\Category::whereNull('parent_id')->orderBy('sort_order')->take(3)->get();
+                    $topCategories = \App\Models\Category::whereNull('parent_id')->orderBy('sort_order')->take(3)->get();
                 @endphp
-                @foreach($categories as $category)
+                @foreach($topCategories as $category)
                     <a href="{{ route('category.show', $category->slug) }}">{{ $category->name }}</a>
                 @endforeach
                 <a href="{{ route('contacts') }}">Контакти</a>
@@ -85,7 +165,7 @@
             <div class="grid">
                 <a href="{{ route('home') }}">Головна</a>
                 <a href="{{ route('catalog') }}">Каталог</a>
-                @foreach($categories as $category)
+                @foreach($topCategories as $category)
                     <a href="{{ route('category.show', $category->slug) }}">{{ $category->name }}</a>
                 @endforeach
                 <a href="{{ route('contacts') }}">Контакти</a>
@@ -99,11 +179,40 @@
 @push('scripts')
 <script>
 (function(){
+    // Mobile menu toggle
     const burger = document.getElementById('burger');
     const menu = document.getElementById('mobileMenu');
     if(burger && menu){
         burger.addEventListener('click', () => {
             menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+    }
+
+    // Mega menu functionality
+    const dropdown = document.querySelector('.nav-dropdown');
+    const megaMenu = document.querySelector('.mega-menu');
+    const trigger = document.querySelector('.nav-dropdown-trigger');
+
+    if(dropdown && megaMenu && trigger) {
+        let timeout;
+
+        dropdown.addEventListener('mouseenter', () => {
+            clearTimeout(timeout);
+            megaMenu.style.display = 'block';
+            setTimeout(() => {
+                megaMenu.classList.add('mega-menu-open');
+            }, 10);
+            trigger.querySelector('svg').style.transform = 'rotate(180deg)';
+        });
+
+        dropdown.addEventListener('mouseleave', () => {
+            timeout = setTimeout(() => {
+                megaMenu.classList.remove('mega-menu-open');
+                setTimeout(() => {
+                    megaMenu.style.display = 'none';
+                }, 200);
+            }, 150);
+            trigger.querySelector('svg').style.transform = 'rotate(0deg)';
         });
     }
 })();
