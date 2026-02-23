@@ -76,6 +76,12 @@ class Product extends Model
             ->withTimestamps();
     }
 
+    // Alias for filtering
+    public function attributeValues()
+    {
+        return $this->attributes();
+    }
+
     // Рекомендуемые товары
     public function recommended()
     {

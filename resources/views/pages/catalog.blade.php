@@ -47,6 +47,11 @@
                  linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
         box-shadow:var(--shadow);
     }
+    .cat-head a:hover{
+        background:rgba(255,255,255,.12);
+        border-color:rgba(255,255,255,.20);
+        transform:translateY(-1px);
+    }
     .cat-head h1{margin:6px 0 6px; font-size:var(--h1); line-height:1.08}
     .cat-head p{margin:0; color:var(--muted); font-size:var(--p); max-width:72ch}
     .cat-head .bar{margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between}
@@ -135,6 +140,20 @@
         <p>{{ $category->description }}</p>
     @endif
 
+    @if($category->children && $category->children->count() > 0)
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.10);">
+            <div style="margin-bottom:10px;color:var(--muted);font-size:14px;font-weight:600;">Підкатегорії:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                @foreach($category->children as $child)
+                    <a href="{{ route('category.show', $child->slug) }}"
+                       style="padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-size:14px;color:var(--text);text-decoration:none;transition:all .12s ease;">
+                        {{ $child->name }}
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     <div class="bar">
         <div class="count">Знайдено: <b>{{ $totalProducts }}</b> товарів</div>
         <div class="row" style="flex-wrap:wrap; justify-content:flex-end;">
@@ -181,6 +200,28 @@
                 @endforeach
             </div>
             @endif
+
+            @foreach($attributes as $attribute)
+            <div class="sec">
+                <b style="display:block; margin-bottom:6px;">{{ $attribute->name }}</b>
+                @if($attribute->type === 'select' && $attribute->options)
+                    @foreach($attribute->options as $option)
+                        <label>
+                            <input type="checkbox" name="attr[{{ $attribute->id }}][]" value="{{ $option }}"
+                                {{ in_array($option, (array)request("attr.{$attribute->id}", [])) ? 'checked' : '' }} />
+                            {{ $option }}
+                        </label>
+                    @endforeach
+                @elseif($attribute->type === 'range')
+                    <div class="range">
+                        <input class="in" type="number" name="attr[{{ $attribute->id }}][min]"
+                               placeholder="від" value="{{ request("attr.{$attribute->id}.min") }}" />
+                        <input class="in" type="number" name="attr[{{ $attribute->id }}][max]"
+                               placeholder="до" value="{{ request("attr.{$attribute->id}.max") }}" />
+                    </div>
+                @endif
+            </div>
+            @endforeach
 
             <div class="sec">
                 <b style="display:block; margin-bottom:6px;">Наявність</b>

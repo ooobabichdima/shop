@@ -14,10 +14,19 @@ class CatalogController extends Controller
     {
         $category = Category::where('slug', $slug)
             ->where('is_active', true)
+            ->with(['children' => function($q) {
+                $q->where('is_active', true)->orderBy('sort_order');
+            }])
             ->firstOrFail();
 
+        // Get all category IDs (current + all children)
+        $categoryIds = [$category->id];
+        if ($category->children) {
+            $categoryIds = array_merge($categoryIds, $category->children->pluck('id')->toArray());
+        }
+
         $query = Product::with(['category', 'brand', 'primaryImage', 'attributes'])
-            ->where('category_id', $category->id)
+            ->whereIn('category_id', $categoryIds)
             ->where('is_active', true);
 
         // Фильтр по цене
@@ -38,6 +47,18 @@ class CatalogController extends Controller
             $query->whereIn('brand_id', (array) $request->brand);
         }
 
+        // Фильтр по атрибутам
+        if ($request->filled('attr')) {
+            foreach ($request->attr as $attrId => $values) {
+                if (!empty($values)) {
+                    $query->whereHas('attributeValues', function($q) use ($attrId, $values) {
+                        $q->where('attribute_id', $attrId)
+                          ->whereIn('value_string', (array)$values);
+                    });
+                }
+            }
+        }
+
         // Сортировка
         $sort = $request->get('sort', 'popular');
         match ($sort) {
@@ -50,18 +71,21 @@ class CatalogController extends Controller
 
         $products = $query->paginate(12);
 
-        // Get all brands that have products in this category
-        $brands = Brand::whereHas('products', function($q) use ($category) {
-            $q->where('category_id', $category->id)
+        // Get all brands that have products in these categories
+        $brands = Brand::whereHas('products', function($q) use ($categoryIds) {
+            $q->whereIn('category_id', $categoryIds)
               ->where('is_active', true);
         })->where('is_active', true)->orderBy('name')->get();
 
-        $attributes = Attribute::where('is_filterable', true)
+        // Get attributes for this category
+        $attributes = $category->attributes()
+            ->where('is_filterable', true)
+            ->where('is_active', true)
             ->orderBy('sort_order')
             ->get();
 
         // Total products count
-        $totalProducts = Product::where('category_id', $category->id)
+        $totalProducts = Product::whereIn('category_id', $categoryIds)
             ->where('is_active', true)
             ->count();
 
