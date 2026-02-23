@@ -262,9 +262,12 @@
 @endpush
 
 <div class="crumbs">
-    <a href="{{ route('home') }}">Головна</a> /
-    <a href="{{ route('catalog') }}">Каталог</a> /
-    <a href="{{ route('category.show', $product->category->slug) }}">{{ $product->category->name }}</a> /
+    <a href="{{ route('home') }}">Головна</a>
+    <span class="crumbs-sep">/</span>
+    <a href="{{ route('catalog') }}">Каталог</a>
+    <span class="crumbs-sep">/</span>
+    <a href="{{ route('category.show', $product->category->slug) }}">{{ $product->category->name }}</a>
+    <span class="crumbs-sep">/</span>
     <span>{{ $product->name }}</span>
 </div>
 

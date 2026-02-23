@@ -7,308 +7,144 @@
 
 @push('styles')
 <style>
-    /* Hero section з фоном */
-    .catalog-hero {
-        position: relative;
-        padding: 60px 24px;
-        margin: 16px 0 32px;
-        border-radius: var(--radius2);
-        overflow: hidden;
-        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-        box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    .catalog-hero{
+        position:relative;padding:64px 40px;margin:16px 0 40px;
+        border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);
     }
-
-    .catalog-hero::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+    .catalog-hero-bg{
+        position:absolute;inset:0;
         background:
-            radial-gradient(circle at 20% 50%, rgba(88,255,122,.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(56,189,248,.15) 0%, transparent 50%),
-            url('data:image/svg+xml,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
-        opacity: 0.6;
+            radial-gradient(ellipse 600px 400px at 20% 30%,rgba(245,158,11,.08),transparent),
+            radial-gradient(ellipse 400px 300px at 80% 70%,rgba(59,130,246,.06),transparent),
+            var(--surface);
+    }
+    .catalog-hero-grid{
+        position:absolute;inset:0;
+        background-image:
+            linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+        background-size:80px 80px;
+        mask-image:radial-gradient(ellipse at center,black 20%,transparent 70%);
+        -webkit-mask-image:radial-gradient(ellipse at center,black 20%,transparent 70%);
+    }
+    .catalog-hero-content{
+        position:relative;z-index:1;max-width:700px;margin:0 auto;text-align:center;
+    }
+    .catalog-hero h1{
+        font-size:clamp(28px,4vw,48px);font-weight:900;line-height:1.1;
+        letter-spacing:-.03em;margin-bottom:16px;
+    }
+    .catalog-hero p{color:var(--text2);font-size:17px;line-height:1.7;margin-bottom:32px}
+    .catalog-stats{
+        display:flex;gap:40px;justify-content:center;flex-wrap:wrap;
+        padding-top:32px;border-top:1px solid var(--border);
+    }
+    .stat-num{font-size:32px;font-weight:800;color:var(--accent);letter-spacing:-.02em}
+    .stat-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-top:2px}
+
+    .categories-section{margin-bottom:60px}
+    .section-title{
+        font-size:clamp(22px,2.5vw,30px);font-weight:800;letter-spacing:-.02em;
+        margin:0 0 28px;display:flex;align-items:center;gap:12px;
+    }
+    .section-title::before{
+        content:'';width:3px;height:28px;border-radius:99px;
+        background:linear-gradient(180deg,var(--accent),rgba(245,158,11,.2));flex-shrink:0;
     }
 
-    .catalog-hero-content {
-        position: relative;
-        z-index: 1;
-        max-width: 800px;
-        margin: 0 auto;
-        text-align: center;
+    .categories-grid{
+        display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;
+    }
+    .cat-card{
+        border-radius:var(--radius-lg);border:1px solid var(--border);
+        background:var(--surface);padding:24px;transition:var(--transition);
+        position:relative;overflow:hidden;
+    }
+    .cat-card::before{
+        content:'';position:absolute;top:0;left:0;right:0;height:2px;
+        background:linear-gradient(90deg,var(--accent),rgba(59,130,246,.6));
+        transform:scaleX(0);transform-origin:left;transition:transform .3s ease;
+    }
+    .cat-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+    .cat-card:hover::before{transform:scaleX(1)}
+
+    .cat-card-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px}
+    .cat-card-icon{
+        flex-shrink:0;width:56px;height:56px;border-radius:14px;
+        display:grid;place-items:center;font-size:28px;
+        border:1px solid var(--border);background:var(--surface2);
+        transition:var(--transition);
+    }
+    .cat-card:hover .cat-card-icon{background:var(--accent-glow);border-color:rgba(245,158,11,.3)}
+    .cat-card-info{flex:1;min-width:0}
+    .cat-card h3{font-size:18px;font-weight:700;margin-bottom:4px}
+    .cat-card h3 a{transition:color .15s ease}
+    .cat-card h3 a:hover{color:var(--accent)}
+    .cat-card-count{font-size:12px;color:var(--text3);font-weight:600}
+    .cat-card-desc{color:var(--text3);font-size:13px;line-height:1.6;margin-bottom:16px}
+
+    .subcategories{
+        display:flex;flex-wrap:wrap;gap:6px;padding-top:16px;border-top:1px solid var(--border);
+    }
+    .subcat-chip{
+        padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;
+        background:var(--surface2);border:1px solid var(--border);color:var(--text2);
+        transition:var(--transition);
+    }
+    .subcat-chip:hover{color:var(--accent);border-color:rgba(245,158,11,.3);background:var(--accent-glow)}
+    .subcat-chip.more{
+        background:var(--accent-glow);border-color:rgba(245,158,11,.25);color:var(--accent2);font-weight:700;
     }
 
-    .catalog-hero h1 {
-        margin: 0 0 16px;
-        font-size: 48px;
-        font-weight: 900;
-        background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        line-height: 1.1;
+    .empty-catalog{
+        padding:80px 20px;text-align:center;border-radius:var(--radius-lg);
+        border:1px solid var(--border);background:var(--surface);
     }
+    .empty-catalog-icon{font-size:56px;opacity:.3;margin-bottom:16px}
 
-    .catalog-hero p {
-        margin: 0 0 24px;
-        color: rgba(255,255,255,.85);
-        font-size: 18px;
-        line-height: 1.6;
-    }
-
-    .catalog-stats {
-        display: flex;
-        gap: 32px;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-top: 32px;
-    }
-
-    .stat-item {
-        text-align: center;
-    }
-
-    .stat-number {
-        font-size: 36px;
-        font-weight: 900;
-        background: linear-gradient(135deg, rgba(88,255,122,.95), rgba(56,189,248,.95));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        line-height: 1;
-    }
-
-    .stat-label {
-        margin-top: 4px;
-        font-size: 13px;
-        color: rgba(255,255,255,.65);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    /* Категорії */
-    .categories-section {
-        margin-bottom: 60px;
-    }
-
-    .section-title {
-        font-size: 28px;
-        font-weight: 800;
-        margin: 0 0 24px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .section-title::before {
-        content: '';
-        width: 4px;
-        height: 32px;
-        background: linear-gradient(180deg, var(--accent), rgba(88,255,122,.3));
-        border-radius: 999px;
-    }
-
-    .categories-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 24px;
-    }
-
-    .cat-card {
-        position: relative;
-        border-radius: var(--radius);
-        border: 1px solid rgba(255,255,255,.12);
-        background: rgba(255,255,255,.05);
-        backdrop-filter: blur(10px);
-        padding: 24px;
-        transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 20px rgba(0,0,0,.15);
-        overflow: hidden;
-    }
-
-    .cat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, var(--accent), rgba(56,189,248,.8));
-        transform: scaleX(0);
-        transform-origin: left;
-        transition: transform .3s ease;
-    }
-
-    .cat-card:hover {
-        transform: translateY(-4px);
-        border-color: rgba(255,255,255,.25);
-        background: rgba(255,255,255,.08);
-        box-shadow: 0 12px 40px rgba(0,0,0,.25);
-    }
-
-    .cat-card:hover::before {
-        transform: scaleX(1);
-    }
-
-    .cat-card-header {
-        display: flex;
-        align-items: flex-start;
-        gap: 16px;
-        margin-bottom: 16px;
-    }
-
-    .cat-card-icon {
-        flex-shrink: 0;
-        width: 64px;
-        height: 64px;
-        border-radius: 16px;
-        display: grid;
-        place-items: center;
-        font-size: 32px;
-        border: 1px solid rgba(255,255,255,.15);
-        background: linear-gradient(135deg, rgba(88,255,122,.12), rgba(56,189,248,.12));
-        box-shadow: 0 8px 16px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.1);
-        transition: transform .3s ease;
-    }
-
-    .cat-card:hover .cat-card-icon {
-        transform: scale(1.1) rotate(5deg);
-    }
-
-    .cat-card-info {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .cat-card h3 {
-        margin: 0 0 6px;
-        font-size: 20px;
-        font-weight: 800;
-    }
-
-    .cat-card h3 a {
-        color: var(--text);
-        text-decoration: none;
-        transition: color .2s ease;
-    }
-
-    .cat-card h3 a:hover {
-        color: var(--accent);
-    }
-
-    .cat-card-count {
-        font-size: 13px;
-        color: var(--muted);
-        font-weight: 600;
-    }
-
-    .cat-card-desc {
-        color: rgba(255,255,255,.7);
-        font-size: 14px;
-        line-height: 1.6;
-        margin: 0 0 16px;
-    }
-
-    .subcategories {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding-top: 16px;
-        border-top: 1px solid rgba(255,255,255,.08);
-    }
-
-    .subcat-link {
-        padding: 6px 12px;
-        border-radius: 999px;
-        background: rgba(255,255,255,.06);
-        border: 1px solid rgba(255,255,255,.12);
-        font-size: 13px;
-        font-weight: 600;
-        color: rgba(255,255,255,.75);
-        text-decoration: none;
-        transition: all .2s ease;
-        white-space: nowrap;
-    }
-
-    .subcat-link:hover {
-        background: rgba(88,255,122,.15);
-        border-color: rgba(88,255,122,.3);
-        color: rgba(88,255,122,.95);
-        transform: translateY(-1px);
-    }
-
-    .subcat-more {
-        background: linear-gradient(135deg, rgba(88,255,122,.15), rgba(56,189,248,.15));
-        border-color: rgba(255,255,255,.2);
-        color: var(--text);
-        font-weight: 700;
-    }
-
-    /* Mobile */
-    @media (max-width: 768px) {
-        .catalog-hero {
-            padding: 40px 20px;
-        }
-
-        .catalog-hero h1 {
-            font-size: 32px;
-        }
-
-        .catalog-hero p {
-            font-size: 16px;
-        }
-
-        .categories-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .stat-number {
-            font-size: 28px;
-        }
-    }
-
-    /* Smooth scroll */
-    html {
-        scroll-behavior: smooth;
+    @media(max-width:768px){
+        .catalog-hero{padding:40px 24px}
+        .categories-grid{grid-template-columns:1fr}
+        .catalog-stats{gap:24px}
     }
 </style>
 @endpush
 
 @section('content')
 <div class="crumbs">
-    <a href="{{ route('home') }}">Головна</a> / <span>Каталог</span>
+    <a href="{{ route('home') }}">Головна</a>
+    <span class="crumbs-sep">/</span>
+    <span>Каталог</span>
 </div>
 
-<!-- Hero Section -->
 <div class="catalog-hero">
+    <div class="catalog-hero-bg"></div>
+    <div class="catalog-hero-grid"></div>
     <div class="catalog-hero-content">
-        <h1>🎯 Каталог страйкбольного обладнання</h1>
-        <p>Знайдіть усе необхідне для страйкболу в одному місці. Від початківця до професіонала – ми маємо рішення для кожного рівня.</p>
+        <h1>Каталог обладнання</h1>
+        <p>Знайдіть усе необхідне для страйкболу в одному місці. Від початківця до професіонала - ми маємо рішення для кожного рівня.</p>
 
         <div class="catalog-stats">
-            <div class="stat-item">
-                <div class="stat-number">{{ $categories->count() }}</div>
+            <div>
+                <div class="stat-num">{{ $categories->count() }}</div>
                 <div class="stat-label">Категорій</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-number">{{ $categories->sum(function($cat) { return $cat->children ? $cat->children->count() : 0; }) }}</div>
+            <div>
+                <div class="stat-num">{{ $categories->sum(function($cat) { return $cat->children ? $cat->children->count() : 0; }) }}</div>
                 <div class="stat-label">Підкатегорій</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-number">2000+</div>
+            <div>
+                <div class="stat-num">2000+</div>
                 <div class="stat-label">Товарів</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-number">30+</div>
+            <div>
+                <div class="stat-num">30+</div>
                 <div class="stat-label">Брендів</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Categories -->
 <div class="categories-section">
     <h2 class="section-title">Всі категорії</h2>
 
@@ -335,9 +171,7 @@
                     @endswitch
                 </div>
                 <div class="cat-card-info">
-                    <h3>
-                        <a href="{{ route('category.show', $category->slug) }}">{{ $category->name }}</a>
-                    </h3>
+                    <h3><a href="{{ route('category.show', $category->slug) }}">{{ $category->name }}</a></h3>
                     @if($category->children && $category->children->count() > 0)
                         <div class="cat-card-count">{{ $category->children->count() }} підкатегорій</div>
                     @endif
@@ -351,10 +185,10 @@
             @if($category->children && $category->children->count() > 0)
                 <div class="subcategories">
                     @foreach($category->children->take(8) as $child)
-                        <a href="{{ route('category.show', $child->slug) }}" class="subcat-link">{{ $child->name }}</a>
+                        <a href="{{ route('category.show', $child->slug) }}" class="subcat-chip">{{ $child->name }}</a>
                     @endforeach
                     @if($category->children->count() > 8)
-                        <a href="{{ route('category.show', $category->slug) }}" class="subcat-link subcat-more">
+                        <a href="{{ route('category.show', $category->slug) }}" class="subcat-chip more">
                             +{{ $category->children->count() - 8 }} ще
                         </a>
                     @endif
@@ -364,12 +198,11 @@
         @endforeach
     </div>
     @else
-    <div class="card" style="text-align:center;padding:80px 20px;background:rgba(255,255,255,.05);backdrop-filter:blur(10px);">
-        <div style="font-size:64px;margin-bottom:20px;opacity:.3;">📦</div>
-        <h3 style="margin:0 0 12px;">Категорії ще не додані</h3>
-        <p style="color:var(--muted);margin:0;">Каталог товарів поповнюється. Зачекайте трохи!</p>
+    <div class="empty-catalog">
+        <div class="empty-catalog-icon">📦</div>
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Категорії ще не додані</h3>
+        <p style="color:var(--text3);font-size:14px;">Каталог товарів поповнюється. Зачекайте трохи!</p>
     </div>
     @endif
 </div>
-
 @endsection
