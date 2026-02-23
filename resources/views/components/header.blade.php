@@ -225,8 +225,9 @@
     // Advanced mega menu functionality
     const trigger = document.getElementById('catalogTrigger');
     const megaMenu = document.querySelector('.mega-menu-advanced');
+    const navDropdown = document.querySelector('.nav-dropdown');
 
-    if(trigger && megaMenu) {
+    if(trigger && megaMenu && navDropdown) {
         let timeout;
 
         const showMenu = () => {
@@ -244,14 +245,21 @@
                 setTimeout(() => {
                     megaMenu.style.display = 'none';
                 }, 200);
+                trigger.querySelector('svg:last-child').style.transform = 'rotate(0deg)';
             }, 200);
-            trigger.querySelector('svg:last-child').style.transform = 'rotate(0deg)';
         };
 
+        // Add listeners to trigger button
         trigger.addEventListener('mouseenter', showMenu);
         trigger.addEventListener('mouseleave', hideMenu);
-        trigger.parentElement.addEventListener('mouseenter', showMenu);
-        trigger.parentElement.addEventListener('mouseleave', hideMenu);
+
+        // Add listeners to the dropdown container
+        navDropdown.addEventListener('mouseenter', showMenu);
+        navDropdown.addEventListener('mouseleave', hideMenu);
+
+        // IMPORTANT: Add listeners to mega menu itself
+        megaMenu.addEventListener('mouseenter', showMenu);
+        megaMenu.addEventListener('mouseleave', hideMenu);
 
         // Sidebar hover effects
         const sidebarItems = document.querySelectorAll('.mega-sidebar-item');
