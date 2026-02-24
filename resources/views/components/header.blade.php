@@ -174,6 +174,16 @@
                     </svg>
                 </button>
 
+                <a href="{{ route('wishlist') }}" class="btn btn-icon" aria-label="Обране" style="position:relative;">
+                    @php $wishCount = count(session('wishlist', [])); @endphp
+                    @if($wishCount > 0)
+                        <span class="cart-badge">{{ $wishCount }}</span>
+                    @endif
+                    <svg class="ico20" viewBox="0 0 24 24" fill="none">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+
                 <a href="{{ route('cart') }}" class="btn btn-icon cart-btn" aria-label="Кошик">
                     @php $cartCount = count(session('cart', [])); @endphp
                     @if($cartCount > 0)

@@ -70,6 +70,14 @@ Route::post('/payment/monobank/webhook', [PaymentController::class, 'monobankWeb
 Route::get('/payment/monobank/demo/{payment}', [PaymentController::class, 'monobankDemo'])->name('payment.monobank.demo');
 Route::post('/payment/monobank/demo/{payment}/confirm', [PaymentController::class, 'monobankDemoConfirm'])->name('payment.monobank.demo.confirm');
 
+// Wishlist
+Route::get('/wishlist', [\App\Http\Controllers\WishlistController::class, 'index'])->name('wishlist');
+Route::post('/wishlist/toggle', [\App\Http\Controllers\WishlistController::class, 'toggle'])->name('wishlist.toggle');
+Route::post('/wishlist/remove', [\App\Http\Controllers\WishlistController::class, 'remove'])->name('wishlist.remove');
+
+// Quick Order
+Route::post('/quick-order', [\App\Http\Controllers\QuickOrderController::class, 'store'])->name('quick-order.store');
+
 // Blog
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/category/{slug}', [BlogController::class, 'category'])->name('blog.category');

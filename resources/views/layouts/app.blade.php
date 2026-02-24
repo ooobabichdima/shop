@@ -410,6 +410,13 @@
             .container{width:min(var(--max),100% - 32px)}
         }
 
+        /* Wishlist button */
+        .wishlisted{color:var(--accent) !important;border-color:rgba(245,158,11,.3) !important;background:rgba(245,158,11,.1) !important}
+
+        /* Quick Order Modal */
+        .alert-success{padding:12px 16px;border-radius:12px;margin-bottom:16px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:rgba(34,197,94,.95);font-size:14px}
+        .alert-error{padding:12px 16px;border-radius:12px;margin-bottom:16px;background:rgba(255,77,77,.1);border:1px solid rgba(255,77,77,.3);color:rgba(255,77,77,.95);font-size:14px}
+
         @media(prefers-reduced-motion:reduce){
             *,*::before,*::after{
                 animation-duration:.01ms !important;
@@ -436,6 +443,87 @@
     </main>
 
     @include('components.footer')
+
+    {{-- Quick Order Modal --}}
+    <div id="quickOrderModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);place-items:center;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;max-width:420px;width:calc(100% - 32px);position:relative;">
+            <button onclick="closeQuickOrder()" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-size:16px;">✕</button>
+            <h3 style="margin:0 0 8px;font-size:20px;font-weight:800;">Швидке замовлення</h3>
+            <p id="qoProductName" style="color:var(--text3);font-size:14px;margin:0 0 20px;"></p>
+            <form id="quickOrderForm" method="POST" action="{{ route('quick-order.store') }}">
+                @csrf
+                <input type="hidden" name="product_id" id="qoProductId">
+                <div style="display:grid;gap:14px;">
+                    <div>
+                        <label style="display:block;margin-bottom:6px;font-size:13px;font-weight:700;color:var(--text2);">Ваше ім'я</label>
+                        <input type="text" name="name" placeholder="Ім'я"
+                            style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;">
+                    </div>
+                    <div>
+                        <label style="display:block;margin-bottom:6px;font-size:13px;font-weight:700;color:var(--text2);">Телефон *</label>
+                        <input type="tel" name="phone" required placeholder="+380 XX XXX XX XX"
+                            style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;padding:14px;font-size:16px;font-weight:700;">Замовити</button>
+                </div>
+            </form>
+            <div id="qoSuccess" style="display:none;text-align:center;padding:20px 0;">
+                <div style="font-size:48px;margin-bottom:12px;">✅</div>
+                <h3 style="font-size:18px;font-weight:700;margin:0 0 8px;">Замовлення прийнято!</h3>
+                <p style="color:var(--text3);font-size:14px;margin:0;">Ми зателефонуємо вам найближчим часом</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Quick Order
+    function openQuickOrder(productId, productName) {
+        document.getElementById('qoProductId').value = productId;
+        document.getElementById('qoProductName').textContent = productName;
+        document.getElementById('quickOrderForm').style.display = 'block';
+        document.getElementById('qoSuccess').style.display = 'none';
+        document.getElementById('quickOrderModal').style.display = 'grid';
+    }
+    function closeQuickOrder() {
+        document.getElementById('quickOrderModal').style.display = 'none';
+    }
+    document.getElementById('quickOrderModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeQuickOrder();
+    });
+    document.getElementById('quickOrderForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        }).then(r => r.json()).then(data => {
+            if (data.success) {
+                form.style.display = 'none';
+                document.getElementById('qoSuccess').style.display = 'block';
+                setTimeout(closeQuickOrder, 3000);
+            }
+        });
+    });
+
+    // Wishlist toggle via AJAX
+    function toggleWishlist(btn, productId) {
+        fetch('{{ route("wishlist.toggle") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({product_id: productId})
+        }).then(r => r.json()).then(data => {
+            if (data.success) {
+                btn.classList.toggle('wishlisted', data.added);
+                btn.title = data.added ? 'Видалити з обраного' : 'Додати в обране';
+            }
+        });
+    }
+    </script>
 
     @stack('scripts')
 </body>

@@ -142,6 +142,12 @@
     .product-badge.sale{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--success)}
     .product-badge.hot{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--accent2)}
     .product-badge.new{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:var(--info)}
+    .product-stock{
+        position:absolute;top:10px;right:10px;
+        padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.03em;
+    }
+    .product-stock.in-stock{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--success)}
+    .product-stock.on-order{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--accent2)}
     .product-body{padding:14px 16px;flex:1;display:flex;flex-direction:column}
     .product-name{
         font-size:14px;font-weight:600;line-height:1.4;margin-bottom:6px;
@@ -269,16 +275,23 @@
                 <div class="filter-section-title">Наявність</div>
                 <label class="filter-label">
                     <input type="checkbox" name="in_stock" value="1" {{ request('in_stock') ? 'checked' : '' }} />
-                    Тільки в наявності
+                    В наявності
+                </label>
+                <label class="filter-label">
+                    <input type="checkbox" name="on_order" value="1" {{ request('on_order') ? 'checked' : '' }} />
+                    Під замовлення
                 </label>
             </div>
 
-            @if(request()->hasAny(['price_from', 'price_to', 'brand', 'in_stock']))
+            @if(request()->hasAny(['price_from', 'price_to', 'brand', 'in_stock', 'on_order']))
             <div class="filter-section">
                 <div class="filter-section-title">Активні фільтри</div>
                 <div class="filter-chips">
                     @if(request('in_stock'))
                         <span class="filter-chip">В наявності</span>
+                    @endif
+                    @if(request('on_order'))
+                        <span class="filter-chip">Під замовлення</span>
                     @endif
                     @if(request('price_from') || request('price_to'))
                         <span class="filter-chip">
@@ -316,6 +329,8 @@
                         @elseif($product->is_featured)
                             <span class="product-badge hot">Хіт</span>
                         @endif
+                        @php $sb = $product->stock_status_badge; @endphp
+                        <span class="product-stock {{ $sb['class'] }}">{{ $sb['text'] }}</span>
                         <span>📦</span>
                     </a>
                     <div class="product-body">
@@ -339,12 +354,22 @@
                                 <span class="strike">{{ number_format($product->old_price, 0) }}</span>
                             @endif
                         </div>
-                        <form method="POST" action="{{ route('cart.add') }}" style="margin:0;">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="btn btn-primary btn-sm">В кошик</button>
-                        </form>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            @php $inW = in_array($product->id, session('wishlist', [])); @endphp
+                            <button type="button" class="btn btn-sm {{ $inW ? 'wishlisted' : '' }}"
+                                onclick="toggleWishlist(this, {{ $product->id }})"
+                                title="{{ $inW ? 'Видалити' : 'В обране' }}"
+                                style="padding:6px 8px;min-width:0;">{{ $inW ? '❤️' : '🤍' }}</button>
+                            <button type="button" class="btn btn-sm"
+                                onclick="openQuickOrder({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                style="padding:6px 8px;min-width:0;" title="Купити в 1 клік">⚡</button>
+                            <form method="POST" action="{{ route('cart.add') }}" style="margin:0;">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-primary btn-sm">В кошик</button>
+                            </form>
+                        </div>
                     </div>
                 </article>
                 @endforeach

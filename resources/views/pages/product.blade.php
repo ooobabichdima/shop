@@ -442,7 +442,17 @@
             </div>
         </form>
 
-        <div class="row" style="flex-wrap:wrap; margin-top:12px;">
+        <div class="row" style="flex-wrap:wrap; margin-top:12px; gap:8px;">
+            <button class="btn small" type="button" onclick="openQuickOrder({{ $product->id }}, '{{ addslashes($product->name) }}')">
+                ⚡ Купити в 1 клік
+            </button>
+            @php $inWish = in_array($product->id, session('wishlist', [])); @endphp
+            <button class="btn small {{ $inWish ? 'wishlisted' : '' }}" type="button"
+                onclick="toggleWishlist(this, {{ $product->id }})"
+                title="{{ $inWish ? 'Видалити з обраного' : 'Додати в обране' }}"
+                style="{{ $inWish ? 'color:var(--accent);border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.1);' : '' }}">
+                {{ $inWish ? '❤️' : '🤍' }} В обране
+            </button>
             <a class="btn small" href="#tabs">Опис</a>
             <a class="btn small" href="#tabs">Характеристики</a>
         </div>
