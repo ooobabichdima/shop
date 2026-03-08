@@ -27,8 +27,18 @@ class HomeController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        // Featured categories for homepage tabs
+        $featuredCategories = Category::with(['children', 'products' => function($query) {
+                $query->where('is_active', true)->with(['brand', 'primaryImage', 'warehouses'])->take(8);
+            }])
+            ->where('is_active', true)
+            ->where('show_on_home', true)
+            ->whereNull('parent_id')
+            ->orderBy('home_sort_order')
+            ->get();
+
         $seo = SeoPage::getByKey('home');
 
-        return view('pages.home', compact('featuredProducts', 'newProducts', 'categories', 'seo'));
+        return view('pages.home', compact('featuredProducts', 'newProducts', 'categories', 'featuredCategories', 'seo'));
     }
 }

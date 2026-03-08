@@ -111,6 +111,45 @@
             </div>
         </div>
 
+        <div class="card" style="padding:20px;margin-bottom:16px;">
+            <h2 style="margin:0 0 12px;">🏠 Відображення на головній</h2>
+            <p style="margin:0 0 16px;color:var(--muted);font-size:14px;">Налаштування показу категорії в блоці "Рекомендовані категорії" на головній сторінці</p>
+
+            <div style="display:grid;gap:16px;">
+                <div>
+                    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                        <input type="checkbox" name="show_on_home" value="1" {{ old('show_on_home') ? 'checked' : '' }}
+                            style="width:18px;height:18px;accent-color:var(--accent);">
+                        <span style="font-weight:700;">Показувати на головній сторінці</span>
+                    </label>
+                    <small style="color:var(--muted);margin-top:4px;display:block;margin-left:28px;">Категорія буде доступна у переключателі категорій</small>
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Порядок на головній</label>
+                    <input type="number" name="home_sort_order" value="{{ old('home_sort_order', 0) }}"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);">
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Порядок відображення в табах (чим менше число, тим лівіше)</small>
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Назва для головної (опційно)</label>
+                    <input type="text" name="home_title" value="{{ old('home_title') }}"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);"
+                        placeholder="Назва для відображення">
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Альтернативна назва для відображення на головній</small>
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:700;">Опис для головної (опційно)</label>
+                    <textarea name="home_description" rows="3"
+                        style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:var(--text);"
+                        placeholder="Короткий опис для блоку на головній...">{{ old('home_description') }}</textarea>
+                    <small style="color:var(--muted);margin-top:4px;display:block;">Буде показано у великій лівій картці</small>
+                </div>
+            </div>
+        </div>
+
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <button type="submit" class="btn primary">Створити категорію</button>
             <a href="{{ route('admin.categories.index') }}" class="btn">Скасувати</a>

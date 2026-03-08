@@ -20,12 +20,17 @@ class Category extends Model
         'meta_keywords',
         'sort_order',
         'is_active',
+        'show_on_home',
+        'home_sort_order',
+        'home_title',
+        'home_description',
     ];
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
+            'show_on_home' => 'boolean',
         ];
     }
 

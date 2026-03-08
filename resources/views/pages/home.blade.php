@@ -157,6 +157,89 @@
     }
     .cat-card:hover .cat-card-cta{opacity:1;transform:translateY(0)}
 
+    /* ═══ FEATURED CATEGORIES TABS ═══ */
+    .featured-tabs{
+        display:flex;gap:0;margin-bottom:32px;overflow-x:auto;
+        border-bottom:2px solid var(--border);padding-bottom:0;
+    }
+    .featured-tab{
+        background:transparent;border:none;
+        padding:14px 24px;font-size:15px;font-weight:700;
+        color:var(--text3);cursor:pointer;
+        text-transform:uppercase;letter-spacing:0.5px;
+        transition:all .2s ease;border-bottom:3px solid transparent;
+        margin-bottom:-2px;white-space:nowrap;
+    }
+    .featured-tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+    .featured-tab.active{
+        color:var(--text);background:rgba(28,28,28,1);
+        border-bottom-color:var(--accent);
+    }
+    .featured-tab-content{display:none}
+    .featured-tab-content.active{display:block}
+
+    .featured-content-grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+        gap:20px;
+    }
+    .featured-banner{
+        grid-column:1 / 2;
+        grid-row:1 / 3;
+        background:linear-gradient(135deg,#2a2a2a 0%,#1a1a1a 100%);
+        border:1px solid var(--border);border-radius:var(--radius-lg);
+        padding:32px;display:flex;flex-direction:column;
+        justify-content:center;color:var(--text);
+    }
+    .featured-banner h3{
+        font-size:24px;font-weight:900;margin-bottom:12px;
+        text-transform:uppercase;letter-spacing:0.5px;
+    }
+    .featured-banner p{
+        color:var(--text2);line-height:1.6;margin-bottom:24px;
+        font-size:14px;
+    }
+    .featured-item{
+        position:relative;border-radius:var(--radius-lg);
+        border:1px solid var(--border);background:var(--surface);
+        overflow:hidden;aspect-ratio:1;
+        display:flex;flex-direction:column;align-items:center;
+        justify-content:center;padding:16px;text-align:center;
+        transition:var(--transition);
+    }
+    .featured-item img{
+        width:100%;height:100%;object-fit:cover;
+        position:absolute;inset:0;z-index:0;
+        opacity:0.9;
+    }
+    .featured-item h4{
+        position:relative;z-index:2;font-size:16px;font-weight:700;
+        margin-top:auto;padding:12px 16px;
+        background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);
+        border-radius:var(--radius);width:100%;
+        color:var(--text);
+    }
+    .featured-item .product-stock-badge{
+        position:absolute;top:12px;right:12px;z-index:3;
+        font-size:11px;padding:4px 10px;
+    }
+    .featured-item-placeholder{
+        width:100%;height:100%;display:grid;place-items:center;
+        background:var(--surface2);opacity:0.5;
+    }
+    .featured-item:hover{
+        border-color:var(--border2);transform:translateY(-4px);
+        box-shadow:var(--shadow-lg);
+    }
+    .featured-item:hover img{opacity:1}
+
+    @media (max-width:768px){
+        .featured-content-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+        .featured-banner{grid-column:1 / -1;grid-row:auto;padding:24px}
+        .featured-tabs{gap:0;justify-content:flex-start}
+        .featured-tab{padding:12px 16px;font-size:13px}
+    }
+
     /* ═══ PRODUCT GRID ═══ */
     .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
     .product{
@@ -374,6 +457,91 @@
         </div>
     </div>
 </div>
+
+{{-- ═══ FEATURED CATEGORIES TABS ═══ --}}
+@if($featuredCategories->count() > 0)
+<div class="section" id="featured-categories">
+    <div class="section-header" style="margin-bottom:32px;">
+        <div>
+            <h2 style="text-transform:uppercase;letter-spacing:1px;font-size:28px;">Рекомендовані категорії</h2>
+        </div>
+    </div>
+
+    {{-- Category Tabs --}}
+    <div class="featured-tabs">
+        @foreach($featuredCategories as $index => $category)
+        <button class="featured-tab {{ $index === 0 ? 'active' : '' }}"
+                onclick="switchFeaturedTab({{ $index }})"
+                data-tab="{{ $index }}">
+            {{ $category->home_title ?: $category->name }}
+        </button>
+        @endforeach
+    </div>
+
+    {{-- Tab Content --}}
+    @foreach($featuredCategories as $index => $category)
+    <div class="featured-tab-content {{ $index === 0 ? 'active' : '' }}" data-content="{{ $index }}">
+        <div class="featured-content-grid">
+            {{-- Featured Banner Card (if description exists) --}}
+            @if($category->home_description)
+            <div class="featured-banner">
+                <h3>{{ $category->home_title ?: $category->name }}</h3>
+                <p>{{ $category->home_description }}</p>
+                <a href="{{ route('category.show', $category->slug) }}" class="btn btn-primary">Переглянути всі</a>
+            </div>
+            @endif
+
+            {{-- Subcategories or Products --}}
+            @if($category->children && $category->children->count() > 0)
+                @foreach($category->children->take(7) as $subcat)
+                <a href="{{ route('category.show', $subcat->slug) }}" class="featured-item">
+                    @if($subcat->image)
+                        <img src="{{ asset('storage/' . $subcat->image) }}" alt="{{ $subcat->name }}">
+                    @else
+                        <div class="featured-item-placeholder">
+                            <span style="font-size:48px;">📦</span>
+                        </div>
+                    @endif
+                    <h4>{{ $subcat->name }}</h4>
+                </a>
+                @endforeach
+            @elseif($category->products && $category->products->count() > 0)
+                @foreach($category->products as $product)
+                <a href="{{ route('product.show', $product->slug) }}" class="featured-item">
+                    @if($product->primaryImage)
+                        <img src="{{ asset('storage/' . $product->primaryImage->image_path) }}" alt="{{ $product->name }}">
+                    @else
+                        <div class="featured-item-placeholder">
+                            <span style="font-size:48px;">📦</span>
+                        </div>
+                    @endif
+                    <h4>{{ $product->name }}</h4>
+                    @if($product->stock_status_badge)
+                        @php $sb = $product->stock_status_badge; @endphp
+                        <span class="product-stock-badge {{ $sb['class'] }}">{{ $sb['text'] }}</span>
+                    @endif
+                </a>
+                @endforeach
+            @endif
+        </div>
+    </div>
+    @endforeach
+</div>
+
+@push('scripts')
+<script>
+function switchFeaturedTab(index) {
+    // Remove active from all tabs and content
+    document.querySelectorAll('.featured-tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.featured-tab-content').forEach(content => content.classList.remove('active'));
+
+    // Add active to selected
+    document.querySelector(`.featured-tab[data-tab="${index}"]`).classList.add('active');
+    document.querySelector(`.featured-tab-content[data-content="${index}"]`).classList.add('active');
+}
+</script>
+@endpush
+@endif
 
 {{-- ═══ POPULAR CATEGORIES ═══ --}}
 @if($categories->count() > 0)
