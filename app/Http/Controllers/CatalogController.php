@@ -25,7 +25,7 @@ class CatalogController extends Controller
             $categoryIds = array_merge($categoryIds, $category->children->pluck('id')->toArray());
         }
 
-        $query = Product::with(['category', 'brand', 'primaryImage', 'attributes', 'warehouses'])
+        $query = Product::with(['category', 'brand', 'primaryImage', 'attributes'])
             ->whereIn('category_id', $categoryIds)
             ->where('is_active', true);
 
@@ -37,17 +37,15 @@ class CatalogController extends Controller
             $query->where('price', '<=', $request->price_to);
         }
 
-        // Фільтр по наявності (використовуємо склади)
+        // Фільтр по наявності (використовуємо поле stock)
         if ($request->filled('in_stock')) {
-            $query->whereHas('warehouses', function($q) {
-                $q->whereRaw('product_warehouse.quantity > product_warehouse.reserved');
-            });
+            $query->where('stock', '>', 0);
         }
 
         // Фільтр "тільки під замовлення"
         if ($request->filled('on_order')) {
-            $query->whereDoesntHave('warehouses', function($q) {
-                $q->whereRaw('product_warehouse.quantity > product_warehouse.reserved');
+            $query->where(function($q) {
+                $q->where('stock', '<=', 0)->orWhereNull('stock');
             });
         }
 
