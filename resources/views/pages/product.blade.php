@@ -417,7 +417,7 @@
                     <div class="stock">
                         @php
                             $stockBadge = $product->stock_status_badge;
-                            $availableStock = $product->available_stock;
+                            $availableStock = $product->stock ?? 0;
                         @endphp
                         @if($stockBadge['class'] === 'in-stock')
                             <span style="color:var(--success);">{{ $stockBadge['text'] }}</span>
