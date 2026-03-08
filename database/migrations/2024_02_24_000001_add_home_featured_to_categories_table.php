@@ -9,10 +9,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('categories', function (Blueprint $table) {
-            $table->boolean('show_on_home')->default(false)->after('image');
-            $table->integer('home_sort_order')->default(0)->after('show_on_home');
-            $table->string('home_title')->nullable()->after('home_sort_order');
-            $table->text('home_description')->nullable()->after('home_title');
+            // Add image column if it doesn't exist
+            if (!Schema::hasColumn('categories', 'image')) {
+                $table->string('image')->nullable()->after('description');
+            }
+
+            // Add featured home columns
+            $table->boolean('show_on_home')->default(false);
+            $table->integer('home_sort_order')->default(0);
+            $table->string('home_title')->nullable();
+            $table->text('home_description')->nullable();
         });
     }
 
@@ -20,6 +26,7 @@ return new class extends Migration
     {
         Schema::table('categories', function (Blueprint $table) {
             $table->dropColumn(['show_on_home', 'home_sort_order', 'home_title', 'home_description']);
+            // Don't drop image column as it might be used by other migrations
         });
     }
 };
