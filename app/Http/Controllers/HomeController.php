@@ -10,13 +10,13 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $featuredProducts = Product::with(['category', 'brand', 'primaryImage', 'warehouses'])
+        $featuredProducts = Product::with(['category', 'brand', 'primaryImage'])
             ->where('is_active', true)
             ->where('is_featured', true)
             ->take(8)
             ->get();
 
-        $newProducts = Product::with(['category', 'brand', 'primaryImage', 'warehouses'])
+        $newProducts = Product::with(['category', 'brand', 'primaryImage'])
             ->where('is_active', true)
             ->where('is_new', true)
             ->take(8)
@@ -33,7 +33,7 @@ class HomeController extends Controller
                     $query->where('is_active', true)->orderBy('sort_order');
                 },
                 'products' => function($query) {
-                    $query->where('is_active', true)->with(['brand', 'primaryImage', 'warehouses'])->take(8);
+                    $query->where('is_active', true)->with(['brand', 'primaryImage'])->take(8);
                 }
             ])
             ->where('is_active', true)

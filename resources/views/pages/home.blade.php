@@ -459,7 +459,7 @@
 </div>
 
 {{-- ═══ FEATURED CATEGORIES TABS ═══ --}}
-@if(false && $featuredCategories->count() > 0)
+@if($featuredCategories->count() > 0)
 <div class="section" id="featured-categories">
     <div class="section-header" style="margin-bottom:32px;">
         <div>
