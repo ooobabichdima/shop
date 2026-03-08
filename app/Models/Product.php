@@ -210,11 +210,14 @@ class Product extends Model
 
     public function isInStock(): bool
     {
-        // Використовуємо систему складів якщо є дані, інакше старе поле stock
-        if ($this->warehouses->isNotEmpty()) {
-            return $this->isInStockOnWarehouse();
-        }
-        return $this->stock > 0;
+        // Use stock field (warehouses table not yet migrated)
+        return ($this->stock ?? 0) > 0;
+
+        // TODO: Uncomment when warehouses table is created
+        // if ($this->relationLoaded('warehouses') && $this->warehouses->isNotEmpty()) {
+        //     return $this->isInStockOnWarehouse();
+        // }
+        // return $this->stock > 0;
     }
 
     public function getYoutubeVideoId(): ?string
