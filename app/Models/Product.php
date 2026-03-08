@@ -136,33 +136,38 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    public function warehouses()
-    {
-        return $this->belongsToMany(Warehouse::class, 'product_warehouse')
-            ->withPivot(['quantity', 'reserved'])
-            ->withTimestamps();
-    }
+    // TODO: Uncomment when warehouses table is created
+    // public function warehouses()
+    // {
+    //     return $this->belongsToMany(Warehouse::class, 'product_warehouse')
+    //         ->withPivot(['quantity', 'reserved'])
+    //         ->withTimestamps();
+    // }
 
     // Загальна кількість на всіх складах
     public function getTotalStockAttribute(): int
     {
-        return $this->warehouses->sum(function($warehouse) {
-            return $warehouse->pivot->quantity;
-        });
+        // Fallback to stock field (warehouses table not yet migrated)
+        return $this->stock ?? 0;
+
+        // TODO: Uncomment when warehouses table is created
+        // return $this->warehouses->sum(function($warehouse) {
+        //     return $warehouse->pivot->quantity;
+        // });
     }
 
     // Доступна кількість (quantity - reserved) на всіх складах
     public function getAvailableStockAttribute(): int
     {
-        // If warehouses relationship is loaded, use it
-        if ($this->relationLoaded('warehouses')) {
-            return $this->warehouses->sum(function($warehouse) {
-                return max(0, $warehouse->pivot->quantity - $warehouse->pivot->reserved);
-            });
-        }
-
-        // Fallback to stock field
+        // Fallback to stock field (warehouses table not yet migrated)
         return $this->stock ?? 0;
+
+        // TODO: Uncomment when warehouses table is created
+        // if ($this->relationLoaded('warehouses')) {
+        //     return $this->warehouses->sum(function($warehouse) {
+        //         return max(0, $warehouse->pivot->quantity - $warehouse->pivot->reserved);
+        //     });
+        // }
     }
 
     // Чи є товар в наявності
