@@ -12,8 +12,8 @@
             @endif
         </div>
 
-        <div style="flex:1;text-align:center;">
-            <span style="color:var(--muted);font-size:14px;">
+        <div style="flex:1;text-align:center;min-width:0;">
+            <span style="color:var(--muted);font-size:14px;white-space:nowrap;">
                 Показано з <strong>{{ $paginator->firstItem() }}</strong> по <strong>{{ $paginator->lastItem() }}</strong> з <strong>{{ $paginator->total() }}</strong>
             </span>
         </div>
