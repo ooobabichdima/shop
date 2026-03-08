@@ -28,9 +28,14 @@ class HomeController extends Controller
             ->get();
 
         // Featured categories for homepage tabs
-        $featuredCategories = Category::with(['children', 'products' => function($query) {
-                $query->where('is_active', true)->with(['brand', 'primaryImage', 'warehouses'])->take(8);
-            }])
+        $featuredCategories = Category::with([
+                'children' => function($query) {
+                    $query->where('is_active', true)->orderBy('sort_order');
+                },
+                'products' => function($query) {
+                    $query->where('is_active', true)->with(['brand', 'primaryImage', 'warehouses'])->take(8);
+                }
+            ])
             ->where('is_active', true)
             ->where('show_on_home', true)
             ->whereNull('parent_id')

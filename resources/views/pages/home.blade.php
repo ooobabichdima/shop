@@ -493,7 +493,7 @@
 
             {{-- Subcategories or Products --}}
             @if($category->children && $category->children->count() > 0)
-                @foreach($category->children->take(7) as $subcat)
+                @foreach($category->children->where('is_active', true)->take(7) as $subcat)
                 <a href="{{ route('category.show', $subcat->slug) }}" class="featured-item">
                     @if($subcat->image)
                         <img src="{{ asset('storage/' . $subcat->image) }}" alt="{{ $subcat->name }}">
@@ -505,10 +505,10 @@
                     <h4>{{ $subcat->name }}</h4>
                 </a>
                 @endforeach
-            @elseif($category->products && $category->products->count() > 0)
+            @elseif(isset($category->products) && $category->products->count() > 0)
                 @foreach($category->products as $product)
                 <a href="{{ route('product.show', $product->slug) }}" class="featured-item">
-                    @if($product->primaryImage)
+                    @if(isset($product->primaryImage) && $product->primaryImage)
                         <img src="{{ asset('storage/' . $product->primaryImage->image_path) }}" alt="{{ $product->name }}">
                     @else
                         <div class="featured-item-placeholder">
@@ -516,9 +516,11 @@
                         </div>
                     @endif
                     <h4>{{ $product->name }}</h4>
-                    @if($product->stock_status_badge)
+                    @if(method_exists($product, 'getStockStatusBadgeAttribute'))
                         @php $sb = $product->stock_status_badge; @endphp
-                        <span class="product-stock-badge {{ $sb['class'] }}">{{ $sb['text'] }}</span>
+                        @if($sb)
+                        <span class="product-stock-badge {{ $sb['class'] ?? '' }}">{{ $sb['text'] ?? '' }}</span>
+                        @endif
                     @endif
                 </a>
                 @endforeach
