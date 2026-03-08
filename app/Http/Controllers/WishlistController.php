@@ -10,7 +10,7 @@ class WishlistController extends Controller
     public function index()
     {
         $wishlist = session('wishlist', []);
-        $products = Product::with(['category', 'brand', 'primaryImage', 'warehouses'])
+        $products = Product::with(['category', 'brand', 'primaryImage'])
             ->whereIn('id', $wishlist)
             ->where('is_active', true)
             ->get();
