@@ -154,9 +154,15 @@ class Product extends Model
     // Доступна кількість (quantity - reserved) на всіх складах
     public function getAvailableStockAttribute(): int
     {
-        return $this->warehouses->sum(function($warehouse) {
-            return max(0, $warehouse->pivot->quantity - $warehouse->pivot->reserved);
-        });
+        // If warehouses relationship is loaded, use it
+        if ($this->relationLoaded('warehouses')) {
+            return $this->warehouses->sum(function($warehouse) {
+                return max(0, $warehouse->pivot->quantity - $warehouse->pivot->reserved);
+            });
+        }
+
+        // Fallback to stock field
+        return $this->stock ?? 0;
     }
 
     // Чи є товар в наявності
